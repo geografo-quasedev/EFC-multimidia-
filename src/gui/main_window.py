@@ -6,6 +6,12 @@ from PyQt5.QtCore import QUrl
 from .components.sidebar import Sidebar
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
+from database import get_db, Base, engine
+from database.models import Media, Playlist
+from utils.metadata_extractor import MetadataExtractor
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -14,6 +20,30 @@ class MainWindow(QMainWindow):
         self.setup_player()
         self.setup_ui()
         self.setup_connections()
+        self.db = next(get_db())
+        
+    def handle_file_selected(self, file_path):
+        # Extract metadata from the file
+        metadata = MetadataExtractor.extract_metadata(file_path)
+        
+        # Create new media entry in database
+        media = Media(
+            file_path=metadata['file_path'],
+            title=metadata['title'],
+            artist=metadata['artist'],
+            album=metadata['album'],
+            duration=metadata['duration'],
+            media_type=metadata['media_type']
+        )
+        
+        # Add to database if not exists
+        existing_media = self.db.query(Media).filter(Media.file_path == file_path).first()
+        if not existing_media:
+            self.db.add(media)
+            self.db.commit()
+        
+        # Add the media item to the grid
+        self.media_grid.add_media_item(file_path)
         
     def setup_player(self):
         # Initialize media player and playlist
