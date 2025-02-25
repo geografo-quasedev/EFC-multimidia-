@@ -1,0 +1,5 @@
+PyQt5>=5.15.0
+python-vlc>=3.0.0
+watchdog>=2.1.0
+pillow>=8.0.0
+sqlalchemy>=1.4.0
