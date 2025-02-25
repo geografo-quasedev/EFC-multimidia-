@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QSettings
+from ..database import get_db, Base, engine
+from ..database.models import Media
+from ..utils.metadata_extractor import MetadataExtractor
 from .components.sidebar import Sidebar
+from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
-from database import get_db, Base, engine
-from database.models import Media, Playlist
-from utils.metadata_extractor import MetadataExtractor
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -74,11 +74,13 @@ class MainWindow(QMainWindow):
         
         # Create main components
         self.sidebar = Sidebar()
+        self.search_panel = SearchPanel()
         self.media_grid = MediaGrid()
         self.player_controls = PlayerControls()
         
         # Add components to layout
         layout.addWidget(self.sidebar)
+        layout.addWidget(self.search_panel)
         layout.addWidget(self.video_widget)
         layout.addWidget(self.media_grid)
         layout.addWidget(self.player_controls)
@@ -86,10 +88,13 @@ class MainWindow(QMainWindow):
         # Set initial states
         self.video_widget.hide()
         self.player_controls.enable_controls(False)
-        
+
     def setup_connections(self):
         # Connect sidebar's file selection signal to handle_file_selected
         self.sidebar.file_selected.connect(self.handle_file_selected)
+        
+        # Connect search panel to media grid
+        self.search_panel.search_changed.connect(self.media_grid.filter_media)
         
         # Connect player control signals
         self.player_controls.play_clicked.connect(self.handle_play)

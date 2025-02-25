@@ -52,7 +52,47 @@ class MediaGrid(QWidget):
         col = len(self.media_items) % 4
         self.grid_layout.addWidget(item_widget, row, col)
         
-        self.media_items.append({"widget": item_widget, "path": file_path})
+        # Store media item info
+        self.media_items.append({
+            'widget': item_widget,
+            'file_path': file_path,
+            'label': label
+        })
+        
+    def filter_media(self, search_text, filter_type):
+        for item in self.media_items:
+            item['widget'].setVisible(False)
+            
+        visible_items = []
+        for item in self.media_items:
+            if not search_text:  # Show all items if search is empty
+                item['widget'].setVisible(True)
+                visible_items.append(item)
+                continue
+                
+            # Get metadata for filtering
+            from src.utils.metadata_extractor import MetadataExtractor
+            metadata = MetadataExtractor.extract_metadata(item['file_path'])
+            
+            # Apply filter based on type
+            show_item = False
+            search_text = search_text.lower()
+            
+            if filter_type == 'all':
+                show_item = any(search_text in str(value).lower() 
+                               for value in metadata.values() if value)
+            elif filter_type in metadata and metadata[filter_type]:
+                show_item = search_text in str(metadata[filter_type]).lower()
+                
+            item['widget'].setVisible(show_item)
+            if show_item:
+                visible_items.append(item)
+        
+        # Reposition visible items in grid
+        for i, item in enumerate(visible_items):
+            row = i // 4
+            col = i % 4
+            self.grid_layout.addWidget(item['widget'], row, col)
         
     def clear_media_items(self):
         for item in self.media_items:
