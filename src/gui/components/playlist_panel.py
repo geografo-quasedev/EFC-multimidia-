@@ -3,9 +3,55 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
 from PyQt5.QtCore import pyqtSignal
 from src.database import get_db
 from src.database.models import Playlist
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QInputDialog
+from PyQt5.QtCore import pyqtSignal
 
 class PlaylistPanel(QWidget):
-    playlist_selected = pyqtSignal(int)  # Emits playlist ID when selected
+    playlist_selected = pyqtSignal(str)
+    playlist_created = pyqtSignal(str)
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+    
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        
+        # Playlist section header
+        playlist_label = QLabel("Playlists")
+        playlist_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(playlist_label)
+        
+        # Create playlist button
+        self.create_playlist_button = QPushButton("Create Playlist")
+        self.create_playlist_button.clicked.connect(self.create_new_playlist)
+        layout.addWidget(self.create_playlist_button)
+        
+        self.setStyleSheet("""
+            QPushButton { 
+                padding: 8px;
+                background-color: #4a90e2;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #357abd;
+            }
+        """)
+    
+    def create_new_playlist(self):
+        name, ok = QInputDialog.getText(
+            self,
+            "Create Playlist",
+            "Enter playlist name:"
+        )
+        if ok and name:
+            self.playlist_created.emit(name)
+    
+    def refresh_playlists(self):
+        # This method will be implemented to refresh the playlist list
+        pass
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -84,12 +130,11 @@ class PlaylistPanel(QWidget):
             self.db.add(playlist)
             self.db.commit()
             
-            # Refresh list
+            # Refresh list and emit signal
             self.load_playlists()
+            self.playlist_created.emit(name)
     
     def handle_playlist_selected(self, item):
-        playlist = self.db.query(Playlist)\
-            .filter(Playlist.name == item.text())\
-            .first()
+        playlist = self.db.query(Playlist).filter(Playlist.name == item.text()).first()
         if playlist:
-            self.playlist_selected.emit(playlist.id)
+            self.playlist_selected.emit(playlist.name)

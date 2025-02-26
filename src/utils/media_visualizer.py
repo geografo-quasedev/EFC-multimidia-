@@ -82,6 +82,40 @@ class MediaVisualizer:
                 cap.release()
     
     @staticmethod
+    def generate_video_preview(video_path, position_percent, width=320, height=180):
+        """Generate a preview frame from a specific position in the video"""
+        try:
+            cap = cv2.VideoCapture(video_path)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            
+            # Calculate frame position
+            frame_pos = int(total_frames * position_percent)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
+            
+            ret, frame = cap.read()
+            if ret:
+                # Resize frame
+                frame = cv2.resize(frame, (width, height))
+                
+                # Convert BGR to RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                # Create QImage and QPixmap
+                height, width, channel = frame.shape
+                bytes_per_line = 3 * width
+                q_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                pixmap = QPixmap.fromImage(q_img)
+                
+                return pixmap
+            
+        except Exception as e:
+            print(f"Error generating preview: {str(e)}")
+            return None
+        finally:
+            if 'cap' in locals():
+                cap.release()
+    
+    @staticmethod
     def get_media_info(file_path):
         """Extract technical information from media files"""
         try:

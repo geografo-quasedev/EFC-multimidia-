@@ -1,122 +1,109 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QLineEdit, QListWidget, QTabWidget)
 from PyQt5.QtCore import pyqtSignal
-from src.database.models import Tag, Category, Media
+from src.database.models import Media, Tag, Category
 
 class OrganizationPanel(QWidget):
-    tag_added = pyqtSignal(str)
-    category_added = pyqtSignal(str, str)
-    favorite_toggled = pyqtSignal(int, bool)
+    media_tagged = pyqtSignal()
+    media_categorized = pyqtSignal()
     
     def __init__(self, db, parent=None):
         super().__init__(parent)
         self.db = db
         self.setup_ui()
-        
+    
     def setup_ui(self):
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
         
-        # Create tab widget
-        tab_widget = QTabWidget()
+        # Tags section
+        tags_label = QLabel("Tags")
+        tags_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(tags_label)
         
-        # Tags tab
-        tags_widget = QWidget()
-        tags_layout = QVBoxLayout(tags_widget)
-        
-        # Tag input
-        tag_input_layout = QHBoxLayout()
         self.tag_input = QLineEdit()
         self.tag_input.setPlaceholderText("Enter new tag...")
-        add_tag_btn = QPushButton("Add Tag")
-        add_tag_btn.clicked.connect(self.add_tag)
-        tag_input_layout.addWidget(self.tag_input)
-        tag_input_layout.addWidget(add_tag_btn)
+        layout.addWidget(self.tag_input)
         
-        # Tag list
+        self.add_tag_button = QPushButton("Add Tag")
+        self.add_tag_button.clicked.connect(self.add_tag)
+        layout.addWidget(self.add_tag_button)
+        
         self.tag_list = QListWidget()
-        self.refresh_tags()
+        layout.addWidget(self.tag_list)
         
-        tags_layout.addLayout(tag_input_layout)
-        tags_layout.addWidget(self.tag_list)
+        # Categories section
+        categories_label = QLabel("Categories")
+        categories_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(categories_label)
         
-        # Categories tab
-        categories_widget = QWidget()
-        categories_layout = QVBoxLayout(categories_widget)
+        self.category_input = QLineEdit()
+        self.category_input.setPlaceholderText("Enter new category...")
+        layout.addWidget(self.category_input)
         
-        # Category input
-        category_input_layout = QVBoxLayout()
-        self.category_name_input = QLineEdit()
-        self.category_name_input.setPlaceholderText("Enter category name...")
-        self.category_desc_input = QLineEdit()
-        self.category_desc_input.setPlaceholderText("Enter category description...")
-        add_category_btn = QPushButton("Add Category")
-        add_category_btn.clicked.connect(self.add_category)
+        self.add_category_button = QPushButton("Add Category")
+        self.add_category_button.clicked.connect(self.add_category)
+        layout.addWidget(self.add_category_button)
         
-        category_input_layout.addWidget(self.category_name_input)
-        category_input_layout.addWidget(self.category_desc_input)
-        category_input_layout.addWidget(add_category_btn)
-        
-        # Category list
         self.category_list = QListWidget()
-        self.refresh_categories()
+        layout.addWidget(self.category_list)
         
-        categories_layout.addLayout(category_input_layout)
-        categories_layout.addWidget(self.category_list)
+        self.setStyleSheet("""
+            QWidget { background-color: #f0f0f0; }
+            QPushButton { 
+                padding: 8px;
+                background-color: #4a90e2;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #357abd;
+            }
+            QLineEdit {
+                padding: 5px;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                background-color: white;
+            }
+            QListWidget {
+                background-color: white;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+            }
+        """)
         
-        # Favorites tab
-        favorites_widget = QWidget()
-        favorites_layout = QVBoxLayout(favorites_widget)
-        
-        # Favorites list
-        self.favorites_list = QListWidget()
-        self.refresh_favorites()
-        
-        favorites_layout.addWidget(QLabel("Favorite Media"))
-        favorites_layout.addWidget(self.favorites_list)
-        
-        # Add tabs
-        tab_widget.addTab(tags_widget, "Tags")
-        tab_widget.addTab(categories_widget, "Categories")
-        tab_widget.addTab(favorites_widget, "Favorites")
-        
-        layout.addWidget(tab_widget)
-        
+        self.load_tags()
+        self.load_categories()
+    
+    def load_tags(self):
+        self.tag_list.clear()
+        tags = self.db.query(Tag).all()
+        for tag in tags:
+            self.tag_list.addItem(tag.name)
+    
+    def load_categories(self):
+        self.category_list.clear()
+        categories = self.db.query(Category).all()
+        for category in categories:
+            self.category_list.addItem(category.name)
+    
     def add_tag(self):
         tag_name = self.tag_input.text().strip()
         if tag_name:
             tag = Tag(name=tag_name)
             self.db.add(tag)
             self.db.commit()
-            self.tag_added.emit(tag_name)
+            self.load_tags()
             self.tag_input.clear()
-            self.refresh_tags()
-            
+            self.media_tagged.emit()
+    
     def add_category(self):
-        name = self.category_name_input.text().strip()
-        description = self.category_desc_input.text().strip()
-        if name:
-            category = Category(name=name, description=description)
+        category_name = self.category_input.text().strip()
+        if category_name:
+            category = Category(name=category_name)
             self.db.add(category)
             self.db.commit()
-            self.category_added.emit(name, description)
-            self.category_name_input.clear()
-            self.category_desc_input.clear()
-            self.refresh_categories()
-            
-    def refresh_tags(self):
-        self.tag_list.clear()
-        tags = self.db.query(Tag).all()
-        for tag in tags:
-            self.tag_list.addItem(tag.name)
-            
-    def refresh_categories(self):
-        self.category_list.clear()
-        categories = self.db.query(Category).all()
-        for category in categories:
-            self.category_list.addItem(f"{category.name} - {category.description}")
-            
-    def refresh_favorites(self):
-        self.favorites_list.clear()
-        favorites = self.db.query(Media).filter(Media.is_favorite == True).all()
-        for media in favorites:
-            self.favorites_list.addItem(media.title or media.file_path)
+            self.load_categories()
+            self.category_input.clear()
+            self.media_categorized.emit()
