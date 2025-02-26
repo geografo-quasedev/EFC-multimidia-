@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
-                             QListWidget, QInputDialog, QMessageBox)
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QListWidget
 from PyQt5.QtCore import pyqtSignal
-from src.database import get_db
-from src.database.models import Playlist
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QInputDialog
-from PyQt5.QtCore import pyqtSignal
+from ...utils.media_export import ShareDialog
+from ...utils.qr_share_dialog import QRShareDialog
+from ...utils.share_manager import ShareManager
 
 class PlaylistPanel(QWidget):
     playlist_selected = pyqtSignal(str)
@@ -12,71 +10,46 @@ class PlaylistPanel(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.playlist_items = []
         self.setup_ui()
     
     def setup_ui(self):
         layout = QVBoxLayout(self)
         
-        # Playlist section header
-        playlist_label = QLabel("Playlists")
-        playlist_label.setStyleSheet("font-weight: bold; font-size: 14px;")
-        layout.addWidget(playlist_label)
-        
-        # Create playlist button
-        self.create_playlist_button = QPushButton("Create Playlist")
-        self.create_playlist_button.clicked.connect(self.create_new_playlist)
-        layout.addWidget(self.create_playlist_button)
-        
-        self.setStyleSheet("""
-            QPushButton { 
-                padding: 8px;
-                background-color: #4a90e2;
-                color: white;
-                border: none;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: #357abd;
-            }
-        """)
-    
-    def create_new_playlist(self):
-        name, ok = QInputDialog.getText(
-            self,
-            "Create Playlist",
-            "Enter playlist name:"
-        )
-        if ok and name:
-            self.playlist_created.emit(name)
-    
-    def refresh_playlists(self):
-        # This method will be implemented to refresh the playlist list
-        pass
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.db = next(get_db())
-        self.setup_ui()
-        self.load_playlists()
-    
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        
-        # Header
-        header = QLabel("Playlists")
-        header.setStyleSheet("font-weight: bold; font-size: 14px;")
-        layout.addWidget(header)
+        # Title
+        title_label = QLabel("Playlists")
+        title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(title_label)
         
         # Playlist list
         self.playlist_list = QListWidget()
-        self.playlist_list.itemClicked.connect(self.handle_playlist_selected)
+        self.playlist_list.itemClicked.connect(self.on_playlist_selected)
         layout.addWidget(self.playlist_list)
         
-        # Add playlist button
-        self.add_button = QPushButton("New Playlist")
-        self.add_button.clicked.connect(self.create_playlist)
-        layout.addWidget(self.add_button)
+        # New playlist section
+        new_playlist_label = QLabel("Create New Playlist")
+        layout.addWidget(new_playlist_label)
+        
+        # Input and button layout
+        button_layout = QHBoxLayout()
+        
+        self.playlist_name_input = QLineEdit()
+        button_layout.addWidget(self.playlist_name_input)
+        
+        create_button = QPushButton("Create")
+        create_button.clicked.connect(self.create_playlist)
+        button_layout.addWidget(create_button)
+        
+        layout.addLayout(button_layout)
+        
+        # Share button
+        self.share_button = QPushButton("Share Playlist")
+        self.share_button.clicked.connect(self.show_share_dialog)
+        self.share_button.setEnabled(False)
+        layout.addWidget(self.share_button)
+        
+        # Refresh playlists
+        self.refresh_playlists()
         
         self.setStyleSheet("""
             QWidget { background-color: #f0f0f0; }
@@ -98,43 +71,37 @@ class PlaylistPanel(QWidget):
             QListWidget::item {
                 padding: 5px;
             }
-            QListWidget::item:hover {
-                background-color: #e9ecef;
-            }
             QListWidget::item:selected {
-                background-color: #4a90e2;
-                color: white;
+                background-color: #e3f2fd;
+                color: #1976d2;
             }
         """)
     
-    def load_playlists(self):
-        self.playlist_list.clear()
-        playlists = self.db.query(Playlist).all()
-        for playlist in playlists:
-            self.playlist_list.addItem(playlist.name)
+    def on_playlist_selected(self, item):
+        self.playlist_selected.emit(item.text())
     
     def create_playlist(self):
-        name, ok = QInputDialog.getText(
-            self, 'Create Playlist', 'Enter playlist name:')
-        
-        if ok and name:
-            # Check if playlist already exists
-            existing = self.db.query(Playlist).filter(Playlist.name == name).first()
-            if existing:
-                QMessageBox.warning(
-                    self, 'Error', 'A playlist with this name already exists')
-                return
-            
-            # Create new playlist
-            playlist = Playlist(name=name)
-            self.db.add(playlist)
-            self.db.commit()
-            
-            # Refresh list and emit signal
-            self.load_playlists()
+        name = self.playlist_name_input.text().strip()
+        if name:
             self.playlist_created.emit(name)
+            self.playlist_name_input.clear()
     
-    def handle_playlist_selected(self, item):
-        playlist = self.db.query(Playlist).filter(Playlist.name == item.text()).first()
-        if playlist:
-            self.playlist_selected.emit(playlist.name)
+    def refresh_playlists(self):
+        self.playlist_list.clear()
+        # TODO: Load playlists from database
+        
+    def show_share_dialog(self):
+        if not self.playlist_items:
+            return
+            
+        # Generate share link
+        share_link = ShareManager.generate_share_link(self.playlist_items)
+        
+        # Show QR share dialog
+        dialog = QRShareDialog(share_link, self)
+        dialog.exec_()
+        
+    def set_playlist_items(self, items):
+        """Set the current playlist items for sharing"""
+        self.playlist_items = items
+        self.share_button.setEnabled(bool(items))

@@ -12,10 +12,10 @@ from .components.sidebar import Sidebar
 from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
-from .components.organization_panel import OrganizationPanel
 from .components.now_playing_panel import NowPlayingPanel
 from .components.statistics_panel import StatisticsPanel
 from .components.visualization_panel import VisualizationPanel
+from .components.organization_panel import OrganizationPanel
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -108,8 +108,14 @@ class MainWindow(QMainWindow):
         if buffer.format().channelCount() > 0:
             data = buffer.data()
             # Convert audio buffer to numpy array for visualization
-            audio_data = np.frombuffer(data, dtype=np.int16)
-            self.visualization_panel.update_spectrum(audio_data)
+            try:
+                # Convert QByteArray to bytes before using frombuffer
+                byte_data = bytes(data)
+                audio_data = np.frombuffer(byte_data, dtype=np.int16)
+                self.visualization_panel.update_spectrum(audio_data)
+            except Exception as e:
+                print(f"Error processing audio buffer: {str(e)}")
+                return
     
     def handle_media_error(self, error):
         """Handle media player errors"""
@@ -125,7 +131,6 @@ class MainWindow(QMainWindow):
         QMessageBox.critical(self, "Media Error", error_message)
         self.player_controls.enable_controls(False)
     
-    def setup_ui(self):
         # Create central widget and main layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -144,10 +149,9 @@ class MainWindow(QMainWindow):
         content_layout.addWidget(self.search_panel)
         
         # Create media display area
-        display_widget = QWidget()
         display_layout = QHBoxLayout(display_widget)
         
-        # Add media grid
+        content_splitter.setSizes([150, 600, 200, 200])
         self.media_grid = MediaGrid()
         display_layout.addWidget(self.media_grid)
         
@@ -237,8 +241,32 @@ class MainWindow(QMainWindow):
             # Update sidebar playlist panel
             if hasattr(self.sidebar, 'playlist_panel'):
                 self.sidebar.playlist_panel.refresh_playlists()
+                
+            # Show share dialog for the new playlist
+            self.show_share_dialog(playlist)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to create playlist: {str(e)}")
+    
+    def show_share_dialog(self, playlist):
+        """Show the share dialog for a playlist"""
+        try:
+            # Prepare playlist data for sharing
+            playlist_data = {
+                'name': playlist.name,
+                'tracks': [{
+                    'file_path': media.file_path,
+                    'title': media.title,
+                    'artist': media.artist,
+                    'album': media.album
+                } for media in playlist.media]
+            }
+            
+            # Create and show share dialog
+            from .components.share_dialog import ShareDialog
+            share_dialog = ShareDialog(playlist_data, self)
+            share_dialog.exec_()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to show share dialog: {str(e)}")
     
     def handle_media_status_change(self, status):
         """Handle changes in media status"""
@@ -273,8 +301,14 @@ class MainWindow(QMainWindow):
         if buffer.format().channelCount() > 0:
             data = buffer.data()
             # Convert audio buffer to numpy array for visualization
-            audio_data = np.frombuffer(data, dtype=np.int16)
-            self.visualization_panel.update_spectrum(audio_data)
+            try:
+                # Convert QByteArray to bytes before using frombuffer
+                byte_data = bytes(data)
+                audio_data = np.frombuffer(byte_data, dtype=np.int16)
+                self.visualization_panel.update_spectrum(audio_data)
+            except Exception as e:
+                print(f"Error processing audio buffer: {str(e)}")
+                return
     
     def handle_media_error(self, error):
         """Handle media player errors"""

@@ -22,43 +22,48 @@ media_categories = Table('media_categories', Base.metadata,
 
 class Media(Base):
     __tablename__ = 'media'
-
-    id = Column(Integer, primary_key=True, index=True)
-    file_path = Column(String, unique=True, index=True)
+    
+    id = Column(Integer, primary_key=True)
+    file_path = Column(String, unique=True)
     title = Column(String)
-    artist = Column(String, nullable=True)
-    album = Column(String, nullable=True)
-    duration = Column(Float, nullable=True)
+    artist = Column(String)
+    album = Column(String)
+    duration = Column(Float)
     media_type = Column(String)  # 'audio' or 'video'
-    is_favorite = Column(Boolean, default=False)
     play_count = Column(Integer, default=0)
-    last_played = Column(Float, nullable=True)  # Timestamp of last play
-    total_play_time = Column(Float, default=0.0)  # Total time spent playing this media
-    rating = Column(Integer, default=0)  # Rating from 1-5 stars
-    comment = Column(String, nullable=True)  # User comments
-    playlists = relationship('Playlist', secondary=playlist_media, back_populates='media_items')
-    tags = relationship('Tag', secondary=media_tags, back_populates='media_items')
+    last_played = Column(Float)
+    rating = Column(Integer)
+    is_favorite = Column(Boolean, default=False)
+    total_play_time = Column(Float, default=0)
+    comment = Column(String, nullable=True)
+    
+    # Relationships
+    tags = relationship('Tag', secondary=media_tags, back_populates='media')
     categories = relationship('Category', secondary=media_categories, back_populates='media_items')
+    playlists = relationship('Playlist', secondary=playlist_media, back_populates='media_items')
 
 class Tag(Base):
     __tablename__ = 'tags'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    media_items = relationship('Media', secondary=media_tags, back_populates='tags')
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    
+    # Relationships
+    media = relationship('Media', secondary=media_tags, back_populates='tags')
 
 class Category(Base):
     __tablename__ = 'categories'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    description = Column(String, nullable=True)
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    
+    # Relationships
     media_items = relationship('Media', secondary=media_categories, back_populates='categories')
 
 class Playlist(Base):
     __tablename__ = 'playlists'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
     description = Column(String, nullable=True)
     media_items = relationship('Media', secondary=playlist_media, back_populates='playlists')

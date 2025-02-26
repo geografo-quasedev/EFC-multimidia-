@@ -98,25 +98,24 @@ class MediaVisualizer:
                 frame = cv2.resize(frame, (width, height))
                 
                 # Apply image enhancement
-                # Convert to LAB color space for better enhancement
-                lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
-                l, a, b = cv2.split(lab)
+                frame = cv2.convertScaleAbs(frame, alpha=1.1, beta=10)
                 
-                # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
-                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
-                cl = clahe.apply(l)
+                # Add subtle vignette effect
+                rows, cols = frame.shape[:2]
+                kernel_x = cv2.getGaussianKernel(cols, cols/4)
+                kernel_y = cv2.getGaussianKernel(rows, rows/4)
+                kernel = kernel_y * kernel_x.T
+                mask = 255 * kernel / np.linalg.norm(kernel)
+                for i in range(3):
+                    frame[:,:,i] = frame[:,:,i] * mask
                 
-                # Merge enhanced L channel with original A and B channels
-                enhanced_lab = cv2.merge((cl, a, b))
-                
-                # Convert back to BGR then to RGB
-                enhanced_frame = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
-                enhanced_frame = cv2.cvtColor(enhanced_frame, cv2.COLOR_BGR2RGB)
+                # Convert BGR to RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 
                 # Create QImage and QPixmap
-                height, width, channel = enhanced_frame.shape
+                height, width, channel = frame.shape
                 bytes_per_line = 3 * width
-                q_img = QImage(enhanced_frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                q_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
                 pixmap = QPixmap.fromImage(q_img)
                 
                 return pixmap
