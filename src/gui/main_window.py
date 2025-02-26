@@ -60,6 +60,9 @@ class MainWindow(QMainWindow):
         last_volume = settings.value('volume', 100, type=int)
         self.media_player.setVolume(last_volume)
         
+        # Set initial playback mode
+        self.playlist.setPlaybackMode(QMediaPlaylist.Sequential)
+        
     def setup_ui(self):
         # Set window properties
         self.setMinimumSize(1200, 800)
@@ -102,6 +105,13 @@ class MainWindow(QMainWindow):
         self.player_controls.prev_clicked.connect(self.handle_previous)
         self.player_controls.next_clicked.connect(self.handle_next)
         self.player_controls.volume_changed.connect(self.handle_volume_changed)
+        self.player_controls.repeat_clicked.connect(self.handle_repeat)
+        self.player_controls.shuffle_clicked.connect(self.handle_shuffle)
+        self.player_controls.position_changed.connect(self.handle_position_changed)
+        
+        # Connect media player signals
+        self.media_player.positionChanged.connect(self.update_position)
+        self.media_player.durationChanged.connect(self.update_duration)
         
         # Connect media grid selection to play_media
         self.media_grid.media_selected.connect(self.play_media)
@@ -126,6 +136,28 @@ class MainWindow(QMainWindow):
         
     def handle_next(self):
         self.playlist.next()
+        
+    def handle_repeat(self):
+        if self.player_controls.is_repeat:
+            self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+        else:
+            self.playlist.setPlaybackMode(QMediaPlaylist.Sequential)
+            
+    def handle_shuffle(self):
+        if self.player_controls.is_shuffle:
+            self.playlist.setPlaybackMode(QMediaPlaylist.Random)
+        else:
+            self.playlist.setPlaybackMode(QMediaPlaylist.Sequential)
+            
+    def handle_position_changed(self, position):
+        self.media_player.setPosition(int(position * self.media_player.duration() / 1000))
+        
+    def update_position(self, position):
+        self.player_controls.update_time_label(position, self.media_player.duration())
+        self.player_controls.update_progress(position, self.media_player.duration())
+        
+    def update_duration(self, duration):
+        self.player_controls.update_time_label(self.media_player.position(), duration)
         
     def handle_volume_changed(self, value):
         self.media_player.setVolume(value)
