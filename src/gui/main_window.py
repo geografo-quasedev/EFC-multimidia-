@@ -10,6 +10,7 @@ from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
 from .components.organization_panel import OrganizationPanel
+from gui.components.now_playing_panel import NowPlayingPanel
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -100,6 +101,7 @@ class MainWindow(QMainWindow):
         self.media_grid = MediaGrid()
         self.player_controls = PlayerControls()
         self.organization_panel = OrganizationPanel(self.db)
+        self.now_playing_panel = NowPlayingPanel()
         
         # Create splitter for main content and organization panel
         content_splitter = QSplitter(Qt.Horizontal)
@@ -116,10 +118,11 @@ class MainWindow(QMainWindow):
         # Add widgets to splitter
         content_splitter.addWidget(self.sidebar)
         content_splitter.addWidget(main_content)
+        content_splitter.addWidget(self.now_playing_panel)
         content_splitter.addWidget(self.organization_panel)
         
         # Set splitter sizes
-        content_splitter.setSizes([200, 800, 200])
+        content_splitter.setSizes([150, 600, 200, 200])
         
         # Add splitter to main layout
         layout.addWidget(content_splitter)
@@ -223,6 +226,15 @@ class MainWindow(QMainWindow):
             self.video_widget.show()
         else:
             self.video_widget.hide()
+            
+        # Update now playing panel
+        media = self.db.query(Media).filter(Media.file_path == file_path).first()
+        if media:
+            self.now_playing_panel.update_current_track(
+                title=media.title,
+                artist=media.artist,
+                album=media.album
+            )
             
         # Enable controls and start playback
         self.player_controls.enable_controls(True)
