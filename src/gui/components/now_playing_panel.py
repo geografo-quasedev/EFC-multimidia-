@@ -1,13 +1,18 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QListWidget,
-                             QHBoxLayout, QFrame)
+                             QHBoxLayout, QFrame, QPushButton)
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import QSize, QMimeData
+from PyQt5.QtCore import QPoint
 
 class NowPlayingPanel(QWidget):
     track_selected = pyqtSignal(int)  # Emits track index when selected
+    queue_reordered = pyqtSignal(list)  # Emits new queue order
+    mini_player_toggled = pyqtSignal(bool)  # Emits when mini player is toggled
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.is_mini_player = False
         self.setup_ui()
     
     def setup_ui(self):
@@ -51,9 +56,18 @@ class NowPlayingPanel(QWidget):
         queue_header.setStyleSheet("font-weight: bold; margin-top: 10px;")
         layout.addWidget(queue_header)
         
-        # Queue list
+        # Mini player toggle button
+        self.mini_player_btn = QPushButton()
+        self.mini_player_btn.setIcon(QIcon.fromTheme('view-restore'))
+        self.mini_player_btn.setFixedSize(24, 24)
+        self.mini_player_btn.clicked.connect(self.toggle_mini_player)
+        layout.addWidget(self.mini_player_btn)
+
+        # Queue list with drag and drop
         self.queue_list = QListWidget()
+        self.queue_list.setDragDropMode(QListWidget.InternalMove)
         self.queue_list.itemClicked.connect(self.handle_track_selected)
+        self.queue_list.model().rowsMoved.connect(self.handle_queue_reorder)
         layout.addWidget(self.queue_list)
         
         self.setStyleSheet("""
@@ -98,3 +112,24 @@ class NowPlayingPanel(QWidget):
     
     def handle_track_selected(self, item):
         self.track_selected.emit(self.queue_list.row(item))
+
+    def handle_queue_reorder(self):
+        new_order = []
+        for i in range(self.queue_list.count()):
+            item = self.queue_list.item(i)
+            text = item.text()
+            title, artist = text.split(' - ', 1)
+            new_order.append({'title': title, 'artist': artist})
+        self.queue_reordered.emit(new_order)
+
+    def toggle_mini_player(self):
+        self.is_mini_player = not self.is_mini_player
+        if self.is_mini_player:
+            self.setMaximumHeight(150)
+            self.queue_list.hide()
+            self.mini_player_btn.setIcon(QIcon.fromTheme('view-fullscreen'))
+        else:
+            self.setMaximumHeight(16777215)  # Default max height
+            self.queue_list.show()
+            self.mini_player_btn.setIcon(QIcon.fromTheme('view-restore'))
+        self.mini_player_toggled.emit(self.is_mini_player)

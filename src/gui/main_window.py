@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLab
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QSettings, Qt
-from src.database import get_db, Base, engine
-from src.database.models import Media
-from src.utils.metadata_extractor import MetadataExtractor
+from ..database import get_db, Base, engine
+from ..database.models import Media
+from ..utils.metadata_extractor import MetadataExtractor
 from .components.sidebar import Sidebar
 from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
