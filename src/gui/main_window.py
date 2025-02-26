@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtCore import QUrl, QSettings
+from PyQt5.QtCore import QUrl, QSettings, Qt
 from database import get_db, Base, engine
 from database.models import Media
 from utils.metadata_extractor import MetadataExtractor
@@ -9,6 +9,7 @@ from .components.sidebar import Sidebar
 from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
+from .components.organization_panel import OrganizationPanel
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -17,10 +18,10 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Media Library Manager")
+        self.db = next(get_db())
         self.setup_player()
         self.setup_ui()
         self.setup_connections()
-        self.db = next(get_db())
         
     def handle_file_selected(self, file_path):
         # Extract metadata from the file
@@ -33,7 +34,8 @@ class MainWindow(QMainWindow):
             artist=metadata['artist'],
             album=metadata['album'],
             duration=metadata['duration'],
-            media_type=metadata['media_type']
+            media_type=metadata['media_type'],
+            is_favorite=False
         )
         
         # Add to database if not exists
@@ -44,6 +46,23 @@ class MainWindow(QMainWindow):
         
         # Add the media item to the grid
         self.media_grid.add_media_item(file_path)
+        
+    def handle_tag_added(self, tag_name):
+        # Refresh media grid to show updated tags
+        self.media_grid.refresh_media_items()
+        
+    def handle_category_added(self, name, description):
+        # Refresh media grid to show updated categories
+        self.media_grid.refresh_media_items()
+        
+    def handle_favorite_toggled(self, media_id, is_favorite):
+        # Update media favorite status in database
+        media = self.db.query(Media).filter(Media.id == media_id).first()
+        if media:
+            media.is_favorite = is_favorite
+            self.db.commit()
+            # Refresh organization panel favorites list
+            self.organization_panel.refresh_favorites()
         
     def setup_player(self):
         # Initialize media player and playlist
@@ -80,13 +99,30 @@ class MainWindow(QMainWindow):
         self.search_panel = SearchPanel()
         self.media_grid = MediaGrid()
         self.player_controls = PlayerControls()
+        self.organization_panel = OrganizationPanel(self.db)
         
-        # Add components to layout
-        layout.addWidget(self.sidebar)
-        layout.addWidget(self.search_panel)
-        layout.addWidget(self.video_widget)
-        layout.addWidget(self.media_grid)
-        layout.addWidget(self.player_controls)
+        # Create splitter for main content and organization panel
+        content_splitter = QSplitter(Qt.Horizontal)
+        
+        # Add main content
+        main_content = QWidget()
+        main_layout = QVBoxLayout(main_content)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.search_panel)
+        main_layout.addWidget(self.video_widget)
+        main_layout.addWidget(self.media_grid)
+        main_layout.addWidget(self.player_controls)
+        
+        # Add widgets to splitter
+        content_splitter.addWidget(self.sidebar)
+        content_splitter.addWidget(main_content)
+        content_splitter.addWidget(self.organization_panel)
+        
+        # Set splitter sizes
+        content_splitter.setSizes([200, 800, 200])
+        
+        # Add splitter to main layout
+        layout.addWidget(content_splitter)
         
         # Set initial states
         self.video_widget.hide()
@@ -98,6 +134,11 @@ class MainWindow(QMainWindow):
         
         # Connect search panel to media grid
         self.search_panel.search_changed.connect(self.media_grid.filter_media)
+        
+        # Connect organization panel signals
+        self.organization_panel.tag_added.connect(self.handle_tag_added)
+        self.organization_panel.category_added.connect(self.handle_category_added)
+        self.organization_panel.favorite_toggled.connect(self.handle_favorite_toggled)
         
         # Connect player control signals
         self.player_controls.play_clicked.connect(self.handle_play)

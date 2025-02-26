@@ -55,6 +55,19 @@ class MediaGrid(QWidget):
             minutes = int(metadata['duration'] // 60)
             seconds = int(metadata['duration'] % 60)
             info_text.append(f"Duration: {minutes}:{seconds:02d}")
+        
+        # Add tags and categories
+        from src.database import get_db
+        db = next(get_db())
+        media = db.query(Media).filter(Media.file_path == file_path).first()
+        if media:
+            if media.tags:
+                info_text.append(f"Tags: {', '.join(tag.name for tag in media.tags)}")
+            if media.categories:
+                info_text.append(f"Categories: {', '.join(cat.name for cat in media.categories)}")
+            if media.is_favorite:
+                info_text.append("⭐ Favorite")
+        
         info_label.setText('\n'.join(info_text))
         info_label.setAlignment(Qt.AlignCenter)
         info_label.setStyleSheet("color: #666;")
@@ -75,10 +88,13 @@ class MediaGrid(QWidget):
         self.media_items.append({
             'widget': item_widget,
             'file_path': file_path,
-            'label': label
+            'metadata': metadata
         })
         
     def filter_media(self, search_text, filter_type):
+        from src.database import get_db
+        db = next(get_db())
+        
         for item in self.media_items:
             item['widget'].setVisible(False)
             
@@ -89,19 +105,37 @@ class MediaGrid(QWidget):
                 visible_items.append(item)
                 continue
                 
-            # Get metadata for filtering
-            from src.utils.metadata_extractor import MetadataExtractor
-            metadata = MetadataExtractor.extract_metadata(item['file_path'])
-            
-            # Apply filter based on type
+            # Get media from database for filtering
+            media = db.query(Media).filter(Media.file_path == item['file_path']).first()
             show_item = False
             search_text = search_text.lower()
             
             if filter_type == 'all':
+                # Search in metadata
                 show_item = any(search_text in str(value).lower() 
-                               for value in metadata.values() if value)
-            elif filter_type in metadata and metadata[filter_type]:
-                show_item = search_text in str(metadata[filter_type]).lower()
+                               for value in item['metadata'].values() if value)
+                               
+                # Search in tags
+                if media and media.tags:
+                    show_item = show_item or any(search_text in tag.name.lower() 
+                                                for tag in media.tags)
+                                                
+                # Search in categories
+                if media and media.categories:
+                    show_item = show_item or any(search_text in cat.name.lower() 
+                                                for cat in media.categories)
+                                                
+            elif filter_type == 'tag' and media:
+                show_item = any(search_text in tag.name.lower() for tag in media.tags)
+                
+            elif filter_type == 'category' and media:
+                show_item = any(search_text in cat.name.lower() for cat in media.categories)
+                
+            elif filter_type == 'favorite' and media:
+                show_item = media.is_favorite
+                
+            elif filter_type in item['metadata'] and item['metadata'][filter_type]:
+                show_item = search_text in str(item['metadata'][filter_type]).lower()
                 
             item['widget'].setVisible(show_item)
             if show_item:
