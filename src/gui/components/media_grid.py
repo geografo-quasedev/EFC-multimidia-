@@ -35,17 +35,36 @@ class MediaGrid(QWidget):
         item_widget = QWidget()
         item_layout = QVBoxLayout(item_widget)
         
-        # Create label with file name
-        file_name = os.path.basename(file_path)
-        label = QLabel(file_name)
-        label.setAlignment(Qt.AlignCenter)
-        label.setWordWrap(True)
+        # Get metadata
+        from utils.metadata_extractor import MetadataExtractor
+        metadata = MetadataExtractor.extract_metadata(file_path)
         
-        # Make label clickable
-        label.mousePressEvent = lambda e, path=file_path: self.media_selected.emit(path)
+        # Create labels for metadata
+        title_label = QLabel(metadata['title'] or os.path.basename(file_path))
+        title_label.setStyleSheet("font-weight: bold;")
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setWordWrap(True)
         
-        item_layout.addWidget(label)
-        item_layout.setContentsMargins(5, 5, 5, 5)
+        info_label = QLabel()
+        info_text = []
+        if metadata['artist']:
+            info_text.append(f"Artist: {metadata['artist']}")
+        if metadata['album']:
+            info_text.append(f"Album: {metadata['album']}")
+        if metadata['duration']:
+            minutes = int(metadata['duration'] // 60)
+            seconds = int(metadata['duration'] % 60)
+            info_text.append(f"Duration: {minutes}:{seconds:02d}")
+        info_label.setText('\n'.join(info_text))
+        info_label.setAlignment(Qt.AlignCenter)
+        info_label.setStyleSheet("color: #666;")
+        
+        # Make widget clickable
+        item_widget.mousePressEvent = lambda e, path=file_path: self.media_selected.emit(path)
+        
+        item_layout.addWidget(title_label)
+        item_layout.addWidget(info_label)
+        item_layout.setContentsMargins(10, 10, 10, 10)
         
         # Add to grid
         row = len(self.media_items) // 4
