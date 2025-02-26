@@ -87,6 +87,11 @@ class MediaGrid(QWidget):
                 info_text.append(f"Categories: {', '.join(cat.name for cat in media.categories)}")
             if media.is_favorite:
                 info_text.append("⭐ Favorite")
+            if media.rating > 0:
+                stars = "★" * media.rating + "☆" * (5 - media.rating)
+                info_text.append(f"Rating: {stars}")
+            if media.comment:
+                info_text.append(f"Comment: {media.comment}")
         
         info_label.setText('\n'.join(info_text))
         info_label.setAlignment(Qt.AlignCenter)

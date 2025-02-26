@@ -32,6 +32,8 @@ class StatisticsPanel(QWidget):
         self.favorite_tracks_label = QLabel()
         self.total_play_time_label = QLabel()
         self.recent_plays_label = QLabel()
+        self.ratings_label = QLabel()
+        self.comments_label = QLabel()
         
         # Add labels to layout
         self.stats_layout.addWidget(self.total_tracks_label)
@@ -39,6 +41,8 @@ class StatisticsPanel(QWidget):
         self.stats_layout.addWidget(self.favorite_tracks_label)
         self.stats_layout.addWidget(self.total_play_time_label)
         self.stats_layout.addWidget(self.recent_plays_label)
+        self.stats_layout.addWidget(self.ratings_label)
+        self.stats_layout.addWidget(self.comments_label)
         
         # Add stretch to push everything to the top
         self.stats_layout.addStretch()
@@ -103,3 +107,19 @@ class StatisticsPanel(QWidget):
         for track in recent_plays:
             recent_plays_text += f"  • {track.title or track.file_path} ({self.format_time(track.last_played)})\n"
         self.recent_plays_label.setText(recent_plays_text)
+        
+        # Get average rating and top rated tracks
+        avg_rating = self.db.query(func.avg(Media.rating)).filter(Media.rating > 0).scalar() or 0
+        top_rated = self.db.query(Media).filter(Media.rating > 0).order_by(Media.rating.desc()).limit(3).all()
+        ratings_text = f"Average Rating: {avg_rating:.1f} stars\n\nTop Rated Tracks:\n"
+        for track in top_rated:
+            stars = "★" * track.rating + "☆" * (5 - track.rating)
+            ratings_text += f"  • {track.title or track.file_path} ({stars})\n"
+        self.ratings_label.setText(ratings_text)
+        
+        # Get most commented tracks
+        commented = self.db.query(Media).filter(Media.comment.isnot(None)).limit(3).all()
+        comments_text = "Most Recent Comments:\n"
+        for track in commented:
+            comments_text += f"  • {track.title or track.file_path}: {track.comment}\n"
+        self.comments_label.setText(comments_text)

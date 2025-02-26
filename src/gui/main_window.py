@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QMessageBox, QPushButton
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QSettings, Qt
 import time
+from ..utils.media_export import ShareDialog
 from ..database import get_db, Base, engine
 from ..database.models import Media
 from ..utils.metadata_extractor import MetadataExtractor
@@ -127,6 +128,10 @@ class MainWindow(QMainWindow):
         self.now_playing_panel = NowPlayingPanel()
         self.statistics_panel = StatisticsPanel(self.db)
         
+        # Create share button
+        self.share_button = QPushButton("Share Playlist")
+        self.share_button.clicked.connect(self.show_share_dialog)
+        
         # Create splitter for main content and organization panel
         content_splitter = QSplitter(Qt.Horizontal)
         
@@ -138,6 +143,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.video_widget)
         main_layout.addWidget(self.media_grid)
         main_layout.addWidget(self.player_controls)
+        main_layout.addWidget(self.share_button)
         
         # Add widgets to splitter
         content_splitter.addWidget(self.sidebar)
@@ -233,6 +239,37 @@ class MainWindow(QMainWindow):
         # Save volume setting
         settings = QSettings()
         settings.setValue('volume', value)
+        
+    def show_share_dialog(self):
+        # Get current playlist items
+        playlist_items = []
+        for i in range(self.playlist.mediaCount()):
+            url = self.playlist.media(i).canonicalUrl()
+            file_path = url.toLocalFile()
+            media = self.db.query(Media).filter(Media.file_path == file_path).first()
+            if media:
+                playlist_items.append({
+                    'title': media.title,
+                    'artist': media.artist,
+                    'album': media.album,
+                    'file_path': file_path,
+                    'duration': media.duration
+                })
+        
+        # Show share dialog
+        dialog = ShareDialog(playlist_items, self)
+        dialog.share_requested.connect(self.handle_share_requested)
+        dialog.exec_()
+        
+    def handle_share_requested(self, format_type, content):
+        # Handle the shared content (e.g., save to file, copy to clipboard)
+        try:
+            file_name = f"playlist.{format_type}"
+            with open(file_name, 'w') as f:
+                f.write(content)
+            QMessageBox.information(self, "Success", f"Playlist exported to {file_name}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to export playlist: {str(e)}")
         
     def play_media(self, file_path):
         try:
