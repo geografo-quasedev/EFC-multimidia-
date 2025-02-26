@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon
 from src.database import get_db
 from src.database.models import Media
 import os
+from ...utils.media_visualizer import MediaVisualizer
 
 class MediaGrid(QWidget):
     media_selected = pyqtSignal(str)
@@ -37,9 +38,26 @@ class MediaGrid(QWidget):
         item_widget = QWidget()
         item_layout = QVBoxLayout(item_widget)
         
-        # Get metadata
+        # Get metadata and media info
         from src.utils.metadata_extractor import MetadataExtractor
         metadata = MetadataExtractor.extract_metadata(file_path)
+        media_info = MediaVisualizer.get_media_info(file_path)
+        
+        # Add visualization
+        if metadata['media_type'] == 'audio':
+            waveform = MediaVisualizer.generate_waveform(file_path)
+            if waveform:
+                visual_label = QLabel()
+                visual_label.setPixmap(waveform.scaled(320, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                visual_label.setAlignment(Qt.AlignCenter)
+                item_layout.addWidget(visual_label)
+        else:
+            thumbnail = MediaVisualizer.generate_video_thumbnail(file_path)
+            if thumbnail:
+                visual_label = QLabel()
+                visual_label.setPixmap(thumbnail.scaled(320, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                visual_label.setAlignment(Qt.AlignCenter)
+                item_layout.addWidget(visual_label)
         
         # Create labels for metadata
         title_label = QLabel(metadata['title'] or os.path.basename(file_path))
@@ -53,13 +71,13 @@ class MediaGrid(QWidget):
             info_text.append(f"Artist: {metadata['artist']}")
         if metadata['album']:
             info_text.append(f"Album: {metadata['album']}")
-        if metadata['duration']:
-            minutes = int(metadata['duration'] // 60)
-            seconds = int(metadata['duration'] % 60)
-            info_text.append(f"Duration: {minutes}:{seconds:02d}")
         
-        # Add tags and categories
-                # Get database connection
+        # Add technical information
+        if media_info:
+            for key, value in media_info.items():
+                info_text.append(f"{key.replace('_', ' ').title()}: {value}")
+        
+        # Get database connection
         self.db = next(get_db())
         media = self.db.query(Media).filter(Media.file_path == file_path).first()
         if media:

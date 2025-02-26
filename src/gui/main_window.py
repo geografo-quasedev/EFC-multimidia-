@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter, QMessageBox
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QSettings, Qt
+import time
 from ..database import get_db, Base, engine
 from ..database.models import Media
 from ..utils.metadata_extractor import MetadataExtractor
@@ -11,6 +12,7 @@ from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
 from .components.organization_panel import OrganizationPanel
 from .components.now_playing_panel import NowPlayingPanel
+from .components.statistics_panel import StatisticsPanel
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -123,6 +125,7 @@ class MainWindow(QMainWindow):
         self.player_controls = PlayerControls()
         self.organization_panel = OrganizationPanel(self.db)
         self.now_playing_panel = NowPlayingPanel()
+        self.statistics_panel = StatisticsPanel(self.db)
         
         # Create splitter for main content and organization panel
         content_splitter = QSplitter(Qt.Horizontal)
@@ -141,9 +144,10 @@ class MainWindow(QMainWindow):
         content_splitter.addWidget(main_content)
         content_splitter.addWidget(self.now_playing_panel)
         content_splitter.addWidget(self.organization_panel)
+        content_splitter.addWidget(self.statistics_panel)
         
         # Set splitter sizes
-        content_splitter.setSizes([150, 600, 200, 200])
+        content_splitter.setSizes([150, 600, 200, 200, 200])
         
         # Add splitter to main layout
         layout.addWidget(content_splitter)
@@ -180,7 +184,7 @@ class MainWindow(QMainWindow):
         
         # Connect media grid selection to play_media
         self.media_grid.media_selected.connect(self.play_media)
-        
+    
     def handle_file_selected(self, file_path):
         # Add the selected file to the media grid
         self.media_grid.add_media_item(file_path)
@@ -249,9 +253,14 @@ class MainWindow(QMainWindow):
             else:
                 self.video_widget.hide()
                 
-            # Update now playing panel
+            # Update now playing panel and media statistics
             media = self.db.query(Media).filter(Media.file_path == file_path).first()
             if media:
+                # Update play statistics
+                media.play_count += 1
+                media.last_played = time.time()
+                self.db.commit()
+                
                 self.now_playing_panel.update_current_track(
                     title=media.title,
                     artist=media.artist,

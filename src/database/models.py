@@ -31,6 +31,9 @@ class Media(Base):
     duration = Column(Float, nullable=True)
     media_type = Column(String)  # 'audio' or 'video'
     is_favorite = Column(Boolean, default=False)
+    play_count = Column(Integer, default=0)
+    last_played = Column(Float, nullable=True)  # Timestamp of last play
+    total_play_time = Column(Float, default=0.0)  # Total time spent playing this media
     playlists = relationship('Playlist', secondary=playlist_media, back_populates='media_items')
     tags = relationship('Tag', secondary=media_tags, back_populates='media_items')
     categories = relationship('Category', secondary=media_categories, back_populates='media_items')
