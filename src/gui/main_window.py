@@ -2,15 +2,15 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLab
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtCore import QUrl, QSettings, Qt
-from database import get_db, Base, engine
-from database.models import Media
-from utils.metadata_extractor import MetadataExtractor
+from src.database import get_db, Base, engine
+from src.database.models import Media
+from src.utils.metadata_extractor import MetadataExtractor
 from .components.sidebar import Sidebar
 from .components.search_panel import SearchPanel
 from .components.media_grid import MediaGrid
 from .components.player_controls import PlayerControls
 from .components.organization_panel import OrganizationPanel
-from gui.components.now_playing_panel import NowPlayingPanel
+from .components.now_playing_panel import NowPlayingPanel
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -71,6 +71,9 @@ class MainWindow(QMainWindow):
         self.video_widget = QVideoWidget()
         self.media_player.setVideoOutput(self.video_widget)
         
+        # Connect error signal
+        self.media_player.error.connect(self.handle_media_error)
+        
         # Create playlist
         self.playlist = QMediaPlaylist()
         self.media_player.setPlaylist(self.playlist)
@@ -82,6 +85,24 @@ class MainWindow(QMainWindow):
         
         # Set initial playback mode
         self.playlist.setPlaybackMode(QMediaPlaylist.Sequential)
+
+    def handle_media_error(self, error):
+        error_messages = {
+            QMediaPlayer.NoError: "No error occurred",
+            QMediaPlayer.ResourceError: "Media resource could not be resolved",
+            QMediaPlayer.FormatError: "Media format not supported",
+            QMediaPlayer.NetworkError: "Network error occurred",
+            QMediaPlayer.AccessDeniedError: "Access to media was denied"
+        }
+        
+        error_msg = error_messages.get(error, "An unknown error occurred")
+        QMessageBox.critical(self, "Media Player Error", error_msg)
+        
+        # Reset player state
+        self.media_player.stop()
+        self.player_controls.is_playing = False
+        self.player_controls.play_button.setText("Play")
+        self.player_controls.enable_controls(False)
         
     def setup_ui(self):
         # Set window properties
@@ -210,34 +231,38 @@ class MainWindow(QMainWindow):
         settings.setValue('volume', value)
         
     def play_media(self, file_path):
-        # Add to playlist if not already present
-        url = QUrl.fromLocalFile(file_path)
-        if not any(self.playlist.media(i).canonicalUrl() == url for i in range(self.playlist.mediaCount())):
-            self.playlist.addMedia(QMediaContent(url))
-        
-        # Set current media
-        for i in range(self.playlist.mediaCount()):
-            if self.playlist.media(i).canonicalUrl() == url:
-                self.playlist.setCurrentIndex(i)
-                break
-        
-        # Show/hide video widget based on media type
-        if file_path.lower().endswith(('.mp4', '.avi', '.mkv')):
-            self.video_widget.show()
-        else:
-            self.video_widget.hide()
+        try:
+            # Add to playlist if not already present
+            url = QUrl.fromLocalFile(file_path)
+            if not any(self.playlist.media(i).canonicalUrl() == url for i in range(self.playlist.mediaCount())):
+                self.playlist.addMedia(QMediaContent(url))
             
-        # Update now playing panel
-        media = self.db.query(Media).filter(Media.file_path == file_path).first()
-        if media:
-            self.now_playing_panel.update_current_track(
-                title=media.title,
-                artist=media.artist,
-                album=media.album
-            )
+            # Set current media
+            for i in range(self.playlist.mediaCount()):
+                if self.playlist.media(i).canonicalUrl() == url:
+                    self.playlist.setCurrentIndex(i)
+                    break
             
-        # Enable controls and start playback
-        self.player_controls.enable_controls(True)
-        self.media_player.play()
-        self.player_controls.is_playing = True
-        self.player_controls.play_button.setText("Pause")
+            # Show/hide video widget based on media type
+            if file_path.lower().endswith(('.mp4', '.avi', '.mkv')):
+                self.video_widget.show()
+            else:
+                self.video_widget.hide()
+                
+            # Update now playing panel
+            media = self.db.query(Media).filter(Media.file_path == file_path).first()
+            if media:
+                self.now_playing_panel.update_current_track(
+                    title=media.title,
+                    artist=media.artist,
+                    album=media.album
+                )
+                
+            # Enable controls and start playback
+            self.player_controls.enable_controls(True)
+            self.media_player.play()
+            self.player_controls.is_playing = True
+            self.player_controls.play_button.setText("Pause")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to play media: {str(e)}")
+            self.player_controls.enable_controls(False)

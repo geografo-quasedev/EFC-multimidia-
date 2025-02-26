@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
                              QListWidget, QInputDialog, QMessageBox)
 from PyQt5.QtCore import pyqtSignal
-from database import get_db
-from database.models import Playlist
+from src.database import get_db
+from src.database.models import Playlist
 
 class PlaylistPanel(QWidget):
     playlist_selected = pyqtSignal(int)  # Emits playlist ID when selected

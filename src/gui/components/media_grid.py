@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QVBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
+from src.database import get_db
+from src.database.models import Media
 import os
 
 class MediaGrid(QWidget):
@@ -36,7 +38,7 @@ class MediaGrid(QWidget):
         item_layout = QVBoxLayout(item_widget)
         
         # Get metadata
-        from utils.metadata_extractor import MetadataExtractor
+        from src.utils.metadata_extractor import MetadataExtractor
         metadata = MetadataExtractor.extract_metadata(file_path)
         
         # Create labels for metadata
@@ -57,9 +59,9 @@ class MediaGrid(QWidget):
             info_text.append(f"Duration: {minutes}:{seconds:02d}")
         
         # Add tags and categories
-        from src.database import get_db
-        db = next(get_db())
-        media = db.query(Media).filter(Media.file_path == file_path).first()
+                # Get database connection
+        self.db = next(get_db())
+        media = self.db.query(Media).filter(Media.file_path == file_path).first()
         if media:
             if media.tags:
                 info_text.append(f"Tags: {', '.join(tag.name for tag in media.tags)}")
@@ -92,8 +94,8 @@ class MediaGrid(QWidget):
         })
         
     def filter_media(self, search_text, filter_type):
-        from src.database import get_db
-        db = next(get_db())
+                # Get database connection
+        self.db = next(get_db())
         
         for item in self.media_items:
             item['widget'].setVisible(False)

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QLineEdit, QListWidget, QTabWidget)
 from PyQt5.QtCore import pyqtSignal
-from database.models import Tag, Category, Media
+from src.database.models import Tag, Category, Media
 
 class OrganizationPanel(QWidget):
     tag_added = pyqtSignal(str)
