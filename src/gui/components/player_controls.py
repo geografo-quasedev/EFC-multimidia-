@@ -7,6 +7,11 @@ class PlayerControls(QWidget):
         super().__init__(parent)
         self.media_player = media_player
         self.is_playing = False
+        self.is_video = False
+        self.preview_label = QLabel()
+        self.preview_label.setFixedSize(160, 90)
+        self.preview_label.setStyleSheet("background-color: #2c2c2c; border-radius: 4px;")
+        self.preview_label.hide()
         self.setup_ui()
         
     def setup_ui(self):
@@ -37,6 +42,9 @@ class PlayerControls(QWidget):
         self.progress_slider = QSlider(Qt.Horizontal)
         self.progress_slider.setRange(0, 0)
         self.progress_slider.sliderMoved.connect(self.set_position)
+        self.progress_slider.setMouseTracking(True)
+        self.progress_slider.mouseMoveEvent = self.show_preview
+        self.progress_slider.leaveEvent = self.hide_preview
         layout.addWidget(self.progress_slider)
         
         # Time labels
@@ -99,6 +107,41 @@ class PlayerControls(QWidget):
     
     def set_position(self, position):
         self.media_player.setPosition(position)
+    
+    def show_preview(self, event):
+        if not self.is_video:
+            return
+            
+        # Calculate position percentage
+        width = self.progress_slider.width()
+        x = event.pos().x()
+        position_percent = max(0, min(1, x / width))
+        
+        # Get current media source
+        media = self.media_player.currentMedia()
+        if media.isNull():
+            return
+            
+        # Generate preview
+        preview = MediaVisualizer.generate_video_preview(
+            media.canonicalUrl().toLocalFile(),
+            position_percent,
+            160, 90
+        )
+        
+        if preview:
+            self.preview_label.setPixmap(preview)
+            
+            # Position preview above progress bar
+            global_pos = self.progress_slider.mapToGlobal(event.pos())
+            self.preview_label.move(
+                global_pos.x() - self.preview_label.width() // 2,
+                global_pos.y() - self.preview_label.height() - 10
+            )
+            self.preview_label.show()
+    
+    def hide_preview(self, event):
+        self.preview_label.hide()
     
     def duration_changed(self, duration):
         self.progress_slider.setRange(0, duration)

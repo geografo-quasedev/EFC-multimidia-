@@ -12,16 +12,15 @@ class VisualizationPanel(QWidget):
         self.setup_ui()
         self.current_media_type = None
         self.spectrum_data = None
+        self.prev_heights = None
         self.spectrum_colors = [
             QColor(41, 128, 185),  # Blue
             QColor(142, 68, 173),  # Purple
-            QColor(52, 152, 219)   # Light Blue
+            QColor(52, 152, 219),  # Light Blue
+            QColor(26, 188, 156),  # Turquoise
+            QColor(46, 204, 113)   # Green
         ]
-        self.spectrum_colors = [
-            QColor(41, 128, 185),  # Blue
-            QColor(142, 68, 173),  # Purple
-            QColor(52, 152, 219)   # Light Blue
-        ]
+        self.transition_speed = 0.3  # Controls the smoothness of transitions
     
     def setup_ui(self):
         self.layout = QVBoxLayout(self)
@@ -86,14 +85,29 @@ class VisualizationPanel(QWidget):
             return
             
         try:
-            # Calculate spectrum using FFT
-            spectrum = np.abs(np.fft.fft(audio_data))
+            # Calculate spectrum using FFT with improved resolution
+            window = np.hanning(len(audio_data))
+            windowed_data = audio_data * window
+            spectrum = np.abs(np.fft.fft(windowed_data))
             frequencies = np.fft.fftfreq(len(spectrum))
             
-            # Normalize spectrum data
+            # Apply logarithmic scaling and smoothing
             spectrum = spectrum[:len(spectrum)//2]
+            spectrum = np.log10(spectrum + 1)
+            
+            # Apply frequency weighting for better visualization
+            freq_weights = np.linspace(1.0, 2.0, len(spectrum))
+            spectrum = spectrum * freq_weights
+            
+            # Normalize spectrum data with dynamic range compression
             max_value = np.max(spectrum) if len(spectrum) > 0 else 1
-            spectrum = spectrum / max_value
+            min_value = np.min(spectrum)
+            spectrum = (spectrum - min_value) / (max_value - min_value)
+            
+            # Apply smoothing filter
+            kernel_size = 3
+            kernel = np.ones(kernel_size) / kernel_size
+            spectrum = np.convolve(spectrum, kernel, mode='same')
             
             # Create QPixmap for visualization
             pixmap = QPixmap(self.visualization_label.width(), self.visualization_label.height())
@@ -102,85 +116,48 @@ class VisualizationPanel(QWidget):
             painter = QPainter(pixmap)
             painter.setRenderHint(QPainter.Antialiasing)
             
-            # Calculate bar properties
-            num_bars = min(64, len(spectrum))
-            bar_width = pixmap.width() / (num_bars * 1.5)
-            max_height = pixmap.height() * 0.8
+            # Calculate bar properties with improved spacing
+            num_bars = min(128, len(spectrum))
+            bar_width = pixmap.width() / (num_bars * 1.2)
+            max_height = pixmap.height() * 0.9
             
-            # Create gradient
-            gradient = QLinearGradient(0, pixmap.height(), 0, 0)
-            for i, color in enumerate(self.spectrum_colors):
-                gradient.setColorAt(i / (len(self.spectrum_colors) - 1), color)
+            # Initialize previous heights if needed
+            if self.prev_heights is None or len(self.prev_heights) != num_bars:
+                self.prev_heights = np.zeros(num_bars)
             
-            # Draw spectrum bars
+            # Draw spectrum bars with improved visual effects
             painter.setPen(Qt.NoPen)
-            painter.setBrush(gradient)
             
             for i in range(num_bars):
-                # Use logarithmic scale for better visualization
-                height = int(np.log10(1 + spectrum[i] * 9) * max_height)
-                x = i * bar_width * 1.5 + (pixmap.width() - num_bars * bar_width * 1.5) / 2
-                y = pixmap.height() - height
+                # Calculate target height with improved scaling
+                target_height = int((0.2 + spectrum[i] * 0.8) * max_height)
                 
+                # Apply smooth transition with variable speed
+                transition_speed = self.transition_speed * (1.0 + 0.5 * spectrum[i])
+                current_height = int(self.prev_heights[i] + (target_height - self.prev_heights[i]) * transition_speed)
+                self.prev_heights[i] = current_height
+                
+                x = i * bar_width * 1.2 + (pixmap.width() - num_bars * bar_width * 1.2) / 2
+                y = pixmap.height() - current_height
+                
+                # Create dynamic gradient based on frequency and amplitude
+                bar_gradient = QLinearGradient(x, y, x, pixmap.height())
+                intensity = spectrum[i]
+                freq_factor = i / num_bars
+                
+                # Interpolate colors based on frequency
+                start_color = QColor(41, 128, 185).lighter(100 + int(50 * intensity))
+                mid_color = QColor(142, 68, 173).lighter(100 + int(30 * intensity))
+                end_color = QColor(52, 152, 219).lighter(100 + int(40 * intensity))
+                
+                bar_gradient.setColorAt(0.0, start_color)
+                bar_gradient.setColorAt(0.5, mid_color)
+                bar_gradient.setColorAt(1.0, end_color)
+                
+                painter.setBrush(bar_gradient)
                 painter.drawRoundedRect(
                     int(x), int(y),
-                    int(bar_width), height,
-                    2, 2
-                )
-            
-            painter.end()
-            
-            # Display the visualization
-            self.visualization_label.setPixmap(pixmap)
-            
-        except Exception as e:
-            print(f"Error updating spectrum: {str(e)}")
-    
-    def update_spectrum(self, audio_data):
-        """Update real-time spectrum visualization for audio playback"""
-        if self.current_media_type != 'audio' or not audio_data:
-            return
-            
-        try:
-            # Calculate spectrum using FFT
-            spectrum = np.abs(np.fft.fft(audio_data))
-            frequencies = np.fft.fftfreq(len(spectrum))
-            
-            # Normalize spectrum data
-            spectrum = spectrum[:len(spectrum)//2]
-            max_value = np.max(spectrum) if len(spectrum) > 0 else 1
-            spectrum = spectrum / max_value
-            
-            # Create QPixmap for visualization
-            pixmap = QPixmap(self.visualization_label.width(), self.visualization_label.height())
-            pixmap.fill(Qt.transparent)
-            
-            painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.Antialiasing)
-            
-            # Calculate bar properties
-            num_bars = min(64, len(spectrum))
-            bar_width = pixmap.width() / (num_bars * 1.5)
-            max_height = pixmap.height() * 0.8
-            
-            # Create gradient
-            gradient = QLinearGradient(0, pixmap.height(), 0, 0)
-            for i, color in enumerate(self.spectrum_colors):
-                gradient.setColorAt(i / (len(self.spectrum_colors) - 1), color)
-            
-            # Draw spectrum bars
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(gradient)
-            
-            for i in range(num_bars):
-                # Use logarithmic scale for better visualization
-                height = int(np.log10(1 + spectrum[i] * 9) * max_height)
-                x = i * bar_width * 1.5 + (pixmap.width() - num_bars * bar_width * 1.5) / 2
-                y = pixmap.height() - height
-                
-                painter.drawRoundedRect(
-                    int(x), int(y),
-                    int(bar_width), height,
+                    int(bar_width), current_height,
                     2, 2
                 )
             

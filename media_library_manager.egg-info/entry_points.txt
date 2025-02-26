@@ -1,0 +1,2 @@
+[console_scripts]
+media-library-manager = src.main:main

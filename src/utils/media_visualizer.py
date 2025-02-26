@@ -97,6 +97,24 @@ class MediaVisualizer:
                 # Resize frame
                 frame = cv2.resize(frame, (width, height))
                 
+                # Apply image enhancement
+                # Increase contrast
+                lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+                l, a, b = cv2.split(lab)
+                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+                cl = clahe.apply(l)
+                enhanced = cv2.merge((cl,a,b))
+                frame = cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
+                
+                # Add subtle vignette effect
+                rows, cols = frame.shape[:2]
+                kernel_x = cv2.getGaussianKernel(cols, cols/4)
+                kernel_y = cv2.getGaussianKernel(rows, rows/4)
+                kernel = kernel_y * kernel_x.T
+                mask = 255 * kernel / np.max(kernel)
+                for i in range(3):
+                    frame[:,:,i] = frame[:,:,i] * mask
+                
                 # Convert BGR to RGB
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 
@@ -107,9 +125,36 @@ class MediaVisualizer:
                 pixmap = QPixmap.fromImage(q_img)
                 
                 return pixmap
+                frame = cv2.convertScaleAbs(frame, alpha=1.2, beta=15)  # Increase contrast and brightness
+                
+                # Apply slight blur for smoother appearance
+                frame = cv2.GaussianBlur(frame, (3, 3), 0)
+                
+                # Add subtle vignette effect
+                rows, cols = frame.shape[:2]
+                kernel_x = cv2.getGaussianKernel(cols, cols/4)
+                kernel_y = cv2.getGaussianKernel(rows, rows/4)
+                kernel = kernel_y * kernel_x.T
+                mask = 255 * kernel / np.linalg.norm(kernel)
+                for i in range(3):
+                    frame[:,:,i] = frame[:,:,i] * mask
+                
+                # Convert BGR to RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                # Create QImage and QPixmap
+                height, width, channel = frame.shape
+                bytes_per_line = 3 * width
+                q_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                
+                # Apply smooth scaling
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(width, height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                
+                return pixmap
             
         except Exception as e:
-            print(f"Error generating preview: {str(e)}")
+            print(f"Error generating preview frame: {str(e)}")
             return None
         finally:
             if 'cap' in locals():
