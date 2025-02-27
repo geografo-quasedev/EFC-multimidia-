@@ -59,21 +59,53 @@ class PlaylistPanel(QWidget):
                 color: white;
                 border: none;
                 border-radius: 4px;
+                transition: all 0.2s ease;
             }
             QPushButton:hover {
                 background-color: #357abd;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+            QPushButton:pressed {
+                transform: translateY(0);
+                box-shadow: none;
             }
             QListWidget {
                 background-color: white;
                 border: 1px solid #dee2e6;
                 border-radius: 4px;
+                padding: 8px;
+                transition: all 0.2s ease;
+            }
+            QListWidget:hover {
+                border-color: #4a90e2;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             }
             QListWidget::item {
-                padding: 5px;
+                padding: 8px;
+                border-radius: 4px;
+                margin-bottom: 4px;
+                transition: all 0.2s ease;
+            }
+            QListWidget::item:hover {
+                background-color: #e3f2fd;
+                padding-left: 12px;
             }
             QListWidget::item:selected {
-                background-color: #e3f2fd;
-                color: #1976d2;
+                background-color: #4a90e2;
+                color: white;
+                padding-left: 12px;
+            }
+            QLineEdit {
+                padding: 8px;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                background-color: white;
+                transition: all 0.2s ease;
+            }
+            QLineEdit:focus {
+                border-color: #4a90e2;
+                box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
             }
         """)
     

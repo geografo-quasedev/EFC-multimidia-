@@ -16,38 +16,75 @@ class MediaGrid(QWidget):
     
     def setup_ui(self):
         layout = QGridLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(20)  # Increased spacing for better visual separation
         
         self.grid_layout = layout
         self.setStyleSheet("""
-            QWidget { background-color: white; }
-            QLabel { 
-                padding: 10px;
+            QWidget { 
                 background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                cursor: pointer;
+                border-radius: 16px;
+                padding: 20px;
             }
-            QLabel:hover {
-                background-color: #e9ecef;
+            QWidget[class="media-item"] {
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 16px;
+                padding: 20px;
+                box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QWidget[class="media-item"]:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+            }
+            QLabel { 
+                padding: 12px;
+                color: #2c3e50;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            QLabel[class="title-label"] {
+                font-size: 18px;
+                font-weight: bold;
+                color: #1a237e;
+                margin-bottom: 12px;
+                background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+                -webkit-background-clip: text;
+                color: transparent;
+            }
+            QLabel[class="info-label"] {
+                color: #546e7a;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .metadata-container {
+                padding: 20px;
+                background: rgba(255,255,255,0.95);
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                border: 1px solid rgba(255,255,255,0.8);
             }
         """)
         
     def add_media_item(self, file_path):
         item_widget = QWidget()
+        item_widget.setProperty("class", "media-item")
         item_layout = QVBoxLayout(item_widget)
+        item_layout.setContentsMargins(0, 0, 0, 0)
+        item_layout.setSpacing(10)
         
         # Get metadata and media info
         from src.utils.metadata_extractor import MetadataExtractor
         metadata = MetadataExtractor.extract_metadata(file_path)
         media_info = MediaVisualizer.get_media_info(file_path)
         
-        # Add visualization
+        # Add visualization with enhanced styling
         if metadata['media_type'] == 'audio':
             waveform = MediaVisualizer.generate_waveform(file_path)
             if waveform:
                 visual_label = QLabel()
+                visual_label.setProperty("class", "visual-label")
                 visual_label.setPixmap(waveform.scaled(320, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 visual_label.setAlignment(Qt.AlignCenter)
                 item_layout.addWidget(visual_label)
@@ -55,61 +92,58 @@ class MediaGrid(QWidget):
             thumbnail = MediaVisualizer.generate_video_thumbnail(file_path)
             if thumbnail:
                 visual_label = QLabel()
+                visual_label.setProperty("class", "visual-label")
                 visual_label.setPixmap(thumbnail.scaled(320, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 visual_label.setAlignment(Qt.AlignCenter)
                 item_layout.addWidget(visual_label)
         
-        # Create labels for metadata
+        # Create metadata container with modern styling
+        metadata_container = QWidget()
+        metadata_container.setProperty("class", "metadata-container")
+        metadata_layout = QVBoxLayout(metadata_container)
+        metadata_layout.setSpacing(8)
+        
+        # Title with enhanced styling
         title_label = QLabel(metadata['title'] or os.path.basename(file_path))
-        title_label.setStyleSheet("font-weight: bold;")
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setProperty("class", "title-label")
         title_label.setWordWrap(True)
+        metadata_layout.addWidget(title_label)
         
+        # Info with improved layout
         info_label = QLabel()
+        info_label.setProperty("class", "info-label")
         info_text = []
-        if metadata['artist']:
-            info_text.append(f"Artist: {metadata['artist']}")
-        if metadata['album']:
-            info_text.append(f"Album: {metadata['album']}")
         
-        # Add technical information
+        if metadata['artist']:
+            info_text.append(f"🎤 {metadata['artist']}")
+        if metadata['album']:
+            info_text.append(f"💿 {metadata['album']}")
+        
+        # Add technical information with icons
         if media_info:
             for key, value in media_info.items():
-                info_text.append(f"{key.replace('_', ' ').title()}: {value}")
-        
-        # Get database connection
-        self.db = next(get_db())
-        media = self.db.query(Media).filter(Media.file_path == file_path).first()
-        if media:
-            if media.tags:
-                info_text.append(f"Tags: {', '.join(tag.name for tag in media.tags)}")
-            if media.categories:
-                info_text.append(f"Categories: {', '.join(cat.name for cat in media.categories)}")
-            if media.is_favorite:
-                info_text.append("⭐ Favorite")
-            if media.rating > 0:
-                stars = "★" * media.rating + "☆" * (5 - media.rating)
-                info_text.append(f"Rating: {stars}")
-            if media.comment:
-                info_text.append(f"Comment: {media.comment}")
+                icon = {
+                    'duration': '⏱',
+                    'bitrate': '📊',
+                    'resolution': '📐',
+                    'codec': '🔧'
+                }.get(key.lower(), '•')
+                info_text.append(f"{icon} {key.replace('_', ' ').title()}: {value}")
         
         info_label.setText('\n'.join(info_text))
-        info_label.setAlignment(Qt.AlignCenter)
-        info_label.setStyleSheet("color: #666;")
+        info_label.setWordWrap(True)
+        metadata_layout.addWidget(info_label)
         
-        # Make widget clickable
+        item_layout.addWidget(metadata_container)
+        
+        # Make widget clickable with ripple effect
         item_widget.mousePressEvent = lambda e, path=file_path: self.media_selected.emit(path)
         
-        item_layout.addWidget(title_label)
-        item_layout.addWidget(info_label)
-        item_layout.setContentsMargins(10, 10, 10, 10)
-        
-        # Add to grid
-        row = len(self.media_items) // 4
-        col = len(self.media_items) % 4
+        # Add to grid with improved layout
+        row = len(self.media_items) // 3  # Changed to 3 items per row for better layout
+        col = len(self.media_items) % 3
         self.grid_layout.addWidget(item_widget, row, col)
         
-        # Store media item info
         self.media_items.append({
             'widget': item_widget,
             'file_path': file_path,

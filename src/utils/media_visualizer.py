@@ -94,20 +94,25 @@ class MediaVisualizer:
             
             ret, frame = cap.read()
             if ret:
-                # Resize frame
-                frame = cv2.resize(frame, (width, height))
+                # Apply image enhancement
+                frame = cv2.detailEnhance(frame, sigma_s=10, sigma_r=0.15)
+                
+                # Adjust brightness and contrast
+                alpha = 1.1  # Contrast control
+                beta = 5    # Brightness control
+                frame = cv2.convertScaleAbs(frame, alpha=alpha, beta=beta)
+                
+                # Resize frame with high-quality interpolation
+                frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_LANCZOS4)
                 
                 # Apply image enhancement
-                frame = cv2.convertScaleAbs(frame, alpha=1.1, beta=10)
-                
-                # Add subtle vignette effect
-                rows, cols = frame.shape[:2]
-                kernel_x = cv2.getGaussianKernel(cols, cols/4)
-                kernel_y = cv2.getGaussianKernel(rows, rows/4)
-                kernel = kernel_y * kernel_x.T
-                mask = 255 * kernel / np.linalg.norm(kernel)
-                for i in range(3):
-                    frame[:,:,i] = frame[:,:,i] * mask
+                # Enhance contrast
+                lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+                l, a, b = cv2.split(lab)
+                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+                cl = clahe.apply(l)
+                enhanced = cv2.merge((cl,a,b))
+                frame = cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
                 
                 # Convert BGR to RGB
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -129,28 +134,77 @@ class MediaVisualizer:
     
     @staticmethod
     def get_media_info(file_path):
-        """Extract technical information from media files"""
+        """Get technical information about the media file"""
         try:
             info = {}
-            
-            if file_path.lower().endswith(('.mp3', '.wav')):
-                y, sr = librosa.load(file_path)
-                duration = librosa.get_duration(y=y, sr=sr)
-                info['sample_rate'] = f"{sr} Hz"
-                info['channels'] = '1' if len(y.shape) == 1 else str(y.shape[1])
-                info['duration'] = f"{int(duration // 60)}:{int(duration % 60):02d}"
-                
-            elif file_path.lower().endswith(('.mp4', '.avi', '.mkv')):
+            if file_path.lower().endswith(('.mp4', '.avi', '.mkv')):
                 cap = cv2.VideoCapture(file_path)
                 info['resolution'] = f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}"
-                info['fps'] = f"{cap.get(cv2.CAP_PROP_FPS):.2f}"
-                info['frame_count'] = str(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
-                duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
+                info['fps'] = round(cap.get(cv2.CAP_PROP_FPS), 2)
+                info['frame_count'] = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                duration = info['frame_count'] / info['fps']
                 info['duration'] = f"{int(duration // 60)}:{int(duration % 60):02d}"
                 cap.release()
+            elif file_path.lower().endswith(('.mp3', '.wav')):
+                y, sr = librosa.load(file_path)
+                duration = librosa.get_duration(y=y, sr=sr)
+                info['duration'] = f"{int(duration // 60)}:{int(duration % 60):02d}"
+                info['sample_rate'] = f"{sr} Hz"
                 
             return info
             
         except Exception as e:
             print(f"Error getting media info: {str(e)}")
-            return {}
+            return None
+            # Convert to LAB color space for better enhancement
+            lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+            l, a, b = cv2.split(lab)
+            
+            # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+            cl = clahe.apply(l)
+            
+            # Merge channels
+            enhanced = cv2.merge((cl,a,b))
+            
+            # Convert back to BGR then RGB
+            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
+            enhanced = cv2.cvtColor(enhanced, cv2.COLOR_BGR2RGB)
+            
+            # Create QImage and QPixmap
+            height, width, channel = enhanced.shape
+            bytes_per_line = 3 * width
+            q_img = QImage(enhanced.data, width, height, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            
+            return pixmap
+            
+        except Exception as e:
+            print(f"Error generating preview: {str(e)}")
+            return None
+        finally:
+            if 'cap' in locals():
+                cap.release()
+
+    @staticmethod
+    def get_media_info(file_path):
+        """Get technical information about the media file"""
+        try:
+            info = {}
+            if file_path.lower().endswith(('.mp4', '.avi', '.mkv')):
+                cap = cv2.VideoCapture(file_path)
+                info['resolution'] = f"{int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))}x{int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}"
+                info['fps'] = round(cap.get(cv2.CAP_PROP_FPS), 2)
+                info['duration'] = round(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS), 2)
+                cap.release()
+            elif file_path.lower().endswith(('.mp3', '.wav')):
+                y, sr = librosa.load(file_path, sr=None)
+                info['sample_rate'] = sr
+                info['duration'] = round(len(y) / sr, 2)
+                info['channels'] = 'Stereo' if len(y.shape) > 1 else 'Mono'
+            return info
+        except Exception as e:
+            print(f"Error getting media info: {str(e)}")
+            return None
+
+        return {}

@@ -16,78 +16,118 @@ class PlayerControls(QWidget):
         
     def setup_ui(self):
         layout = QHBoxLayout(self)
+        layout.setSpacing(15)  # Increased spacing between controls
         
-        # Play/Pause button
-        self.play_button = QPushButton("Play")
+        # Play/Pause button with enhanced styling
+        self.play_button = QPushButton("▶ Play")
         self.play_button.clicked.connect(self.toggle_playback)
+        self.play_button.setMinimumWidth(120)
         layout.addWidget(self.play_button)
         
-        # Stop button
-        self.stop_button = QPushButton("Stop")
+        # Stop button with modern icon
+        self.stop_button = QPushButton("⏹ Stop")
         self.stop_button.clicked.connect(self.stop_playback)
+        self.stop_button.setMinimumWidth(120)
         layout.addWidget(self.stop_button)
         
-        # Volume slider
+        # Volume control with improved visuals
+        volume_container = QWidget()
+        volume_layout = QHBoxLayout(volume_container)
+        volume_layout.setContentsMargins(0, 0, 0, 0)
+        volume_layout.setSpacing(10)
+        
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setValue(self.media_player.volume())
         self.volume_slider.valueChanged.connect(self.media_player.setVolume)
-        layout.addWidget(self.volume_slider)
+        self.volume_slider.setMinimumWidth(150)
+        volume_layout.addWidget(self.volume_slider)
         
-        # Volume label
-        self.volume_label = QLabel(f"Volume: {self.media_player.volume()}%")
-        layout.addWidget(self.volume_label)
+        self.volume_label = QLabel(f"🔊 {self.media_player.volume()}%")
+        self.volume_label.setMinimumWidth(60)
+        volume_layout.addWidget(self.volume_label)
+        layout.addWidget(volume_container)
         
-        # Progress slider
+        # Progress slider with modern styling
+        progress_container = QWidget()
+        progress_layout = QHBoxLayout(progress_container)
+        progress_layout.setContentsMargins(0, 0, 0, 0)
+        progress_layout.setSpacing(10)
+        
         self.progress_slider = QSlider(Qt.Horizontal)
         self.progress_slider.setRange(0, 0)
         self.progress_slider.sliderMoved.connect(self.set_position)
         self.progress_slider.setMouseTracking(True)
         self.progress_slider.mouseMoveEvent = self.show_preview
         self.progress_slider.leaveEvent = self.hide_preview
-        layout.addWidget(self.progress_slider)
+        progress_layout.addWidget(self.progress_slider)
         
-        # Time labels
+        # Time labels with improved formatting
+        time_container = QWidget()
+        time_layout = QHBoxLayout(time_container)
+        time_layout.setContentsMargins(0, 0, 0, 0)
+        time_layout.setSpacing(5)
+        
         self.current_time = QLabel("0:00")
-        layout.addWidget(self.current_time)
-        layout.addWidget(QLabel("/"))
+        time_layout.addWidget(self.current_time)
+        time_layout.addWidget(QLabel("/"))
         self.total_time = QLabel("0:00")
-        layout.addWidget(self.total_time)
+        time_layout.addWidget(self.total_time)
+        progress_layout.addWidget(time_container)
         
-        # Connect media player signals
-        self.media_player.durationChanged.connect(self.duration_changed)
-        self.media_player.positionChanged.connect(self.position_changed)
-        
-        # Initially disable controls
-        self.enable_controls(False)
+        layout.addWidget(progress_container)
         
         self.setStyleSheet("""
+            QWidget {
+                background-color: #f8f9fa;
+                border-radius: 12px;
+                padding: 15px;
+            }
             QPushButton { 
-                padding: 8px;
-                background-color: #4a90e2;
+                padding: 12px 24px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4a90e2, stop:1 #357abd);
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 25px;
+                font-weight: bold;
+                font-size: 14px;
+                min-width: 120px;
+                transition: all 0.3s ease;
             }
             QPushButton:hover {
-                background-color: #357abd;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #357abd, stop:1 #2c5aa0);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
-            QPushButton:disabled {
-                background-color: #ccc;
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2c5aa0, stop:1 #1a4884);
+                transform: translateY(0);
+                box-shadow: none;
             }
             QSlider::groove:horizontal {
-                border: 1px solid #999;
-                height: 8px;
-                background: #f0f0f0;
-                margin: 2px 0;
-                border-radius: 4px;
+                border: none;
+                height: 6px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #e0e0e0, stop:1 #f0f0f0);
+                border-radius: 3px;
             }
             QSlider::handle:horizontal {
-                background: #4a90e2;
-                border: 1px solid #5c5c5c;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4a90e2, stop:1 #357abd);
+                border: none;
                 width: 18px;
-                margin: -2px 0;
+                height: 18px;
+                margin: -6px 0;
                 border-radius: 9px;
+                transition: all 0.2s ease;
+            }
+            QSlider::handle:horizontal:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #357abd, stop:1 #2c5aa0);
+                transform: scale(1.2);
+            }
+            QLabel {
+                color: #2c3e50;
+                font-size: 14px;
+                font-weight: 500;
+                margin: 0 8px;
             }
         """)
         

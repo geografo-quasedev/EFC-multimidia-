@@ -18,29 +18,69 @@ class StatsPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         
-        # Title
+        # Title with improved styling
         title_label = QLabel("Media Statistics")
-        title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        title_label.setStyleSheet("font-weight: bold; font-size: 16px; color: #2c3e50; margin-bottom: 12px;")
         layout.addWidget(title_label)
         
-        # Stats container
+        # Stats container with enhanced styling
         self.stats_container = QFrame()
         self.stats_container.setFrameShape(QFrame.StyledPanel)
         self.stats_container.setStyleSheet("""
+            QWidget { 
+                background-color: #f8f9fa;
+                border-radius: 16px;
+                padding: 20px;
+            }
             QFrame {
-                background-color: white;
-                border-radius: 8px;
-                padding: 10px;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border: 1px solid #e9ecef;
+                border-radius: 16px;
+                padding: 20px;
+                margin: 12px 0;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QFrame:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            }
+            QLabel {
+                color: #2c3e50;
+                font-size: 14px;
+                font-weight: 500;
+                margin: 6px 0;
+                transition: color 0.2s ease;
+            }
+            QLabel[class="section-title"] {
+                font-size: 18px;
+                font-weight: bold;
+                color: #1a237e;
+                margin: 16px 0 12px 0;
+                background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+                -webkit-background-clip: text;
+                color: transparent;
+            }
+            QPushButton.star-button {
+                color: #ffd700;
+                font-size: 20px;
+                border: none;
+                padding: 8px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QPushButton.star-button:hover {
+                color: #ffa500;
+                transform: scale(1.2) rotate(72deg);
             }
         """)
         stats_layout = QVBoxLayout(self.stats_container)
         
-        # Play statistics section
-        play_stats_label = QLabel("Play Statistics")
-        play_stats_label.setFont(QFont("Arial", 10, QFont.Bold))
+        # Play statistics section with icons
+        play_stats_label = QLabel("🎵 Play Statistics")
+        play_stats_label.setProperty("class", "section-title")
         stats_layout.addWidget(play_stats_label)
         
-        # Play count with icon
+        # Enhanced play count display
         play_count_layout = QHBoxLayout()
         play_count_label = QLabel("▶ Plays:")
         self.play_count_value = QLabel("0")
@@ -49,7 +89,7 @@ class StatsPanel(QWidget):
         play_count_layout.addStretch()
         stats_layout.addLayout(play_count_layout)
         
-        # Last played
+        # Last played with improved formatting
         last_played_layout = QHBoxLayout()
         last_played_label = QLabel("🕒 Last played:")
         self.last_played_value = QLabel("Never")
@@ -57,6 +97,31 @@ class StatsPanel(QWidget):
         last_played_layout.addWidget(self.last_played_value)
         last_played_layout.addStretch()
         stats_layout.addLayout(last_played_layout)
+        
+        # Rating section with interactive stars
+        rating_section_label = QLabel("⭐ Rating & Favorites")
+        rating_section_label.setProperty("class", "section-title")
+        stats_layout.addWidget(rating_section_label)
+        
+        # Star rating with improved interaction
+        rating_layout = QHBoxLayout()
+        rating_label = QLabel("Rating:")
+        self.rating_buttons = []
+        rating_stars = QHBoxLayout()
+        for i in range(5):
+            star_button = QPushButton("☆")
+            star_button.setFlat(True)
+            star_button.setProperty("class", "star-button")
+            star_button.clicked.connect(lambda checked, index=i: self.set_rating(index + 1))
+            self.rating_buttons.append(star_button)
+            rating_stars.addWidget(star_button)
+        rating_layout.addWidget(rating_label)
+        rating_layout.addLayout(rating_stars)
+        rating_layout.addStretch()
+        stats_layout.addLayout(rating_layout)
+        
+        layout.addWidget(self.stats_container)
+        layout.addStretch()
         
         # Total play time
         total_time_layout = QHBoxLayout()
