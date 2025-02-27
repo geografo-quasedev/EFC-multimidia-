@@ -1,4 +1,4 @@
-from . import Base, engine
+from src.database import Base, engine
 
 def init_database():
     # Create all tables

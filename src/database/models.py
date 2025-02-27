@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table, Boolean
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from . import Base
 
@@ -24,23 +24,36 @@ class Media(Base):
     __tablename__ = 'media'
     
     id = Column(Integer, primary_key=True)
-    file_path = Column(String, unique=True)
     title = Column(String)
-    artist = Column(String)
-    album = Column(String)
-    duration = Column(Float)
-    media_type = Column(String)  # 'audio' or 'video'
+    file_path = Column(String, unique=True)
+    media_type = Column(String)  # audio, video, image
+    duration = Column(Float, nullable=True)
+    created_date = Column(DateTime)
+    last_played = Column(DateTime, nullable=True)
     play_count = Column(Integer, default=0)
-    last_played = Column(Float)
-    rating = Column(Integer)
+    rating = Column(Integer, nullable=True)
+    artist = Column(String, nullable=True)
+    album = Column(String, nullable=True)
     is_favorite = Column(Boolean, default=False)
-    total_play_time = Column(Float, default=0)
-    comment = Column(String, nullable=True)
+    total_play_time = Column(Float, default=0)  # Total time spent playing this media in seconds
+    comment = Column(String, nullable=True)  # User comments on media
     
     # Relationships
     tags = relationship('Tag', secondary=media_tags, back_populates='media')
     categories = relationship('Category', secondary=media_categories, back_populates='media_items')
     playlists = relationship('Playlist', secondary=playlist_media, back_populates='media_items')
+
+class PlaylistItem(Base):
+    __tablename__ = 'playlist_items'
+    
+    id = Column(Integer, primary_key=True)
+    playlist_id = Column(Integer, ForeignKey('playlists.id'))
+    media_id = Column(Integer, ForeignKey('media.id'))
+    position = Column(Integer)
+    
+    # Relationships
+    media = relationship('Media', backref='playlist_items')
+    playlist = relationship('Playlist', backref='items')
 
 class Tag(Base):
     __tablename__ = 'tags'

@@ -10,36 +10,22 @@ class QRShareDialog(QDialog):
         self.setup_ui()
     
     def setup_ui(self):
+        # TODO: Implement QR code sharing functionality in future version
         self.setWindowTitle("Share Media")
         self.setMinimumWidth(400)
         
         layout = QVBoxLayout(self)
         
-        # QR Code display
-        self.qr_label = QLabel()
-        self.qr_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.qr_label)
-        
-        # Share link display
-        link_label = QLabel("Share Link:")
-        layout.addWidget(link_label)
-        
-        self.link_edit = QLineEdit(self.share_data)
-        self.link_edit.setReadOnly(True)
-        layout.addWidget(self.link_edit)
-        
-        # Copy button
-        copy_button = QPushButton("Copy Link")
-        copy_button.clicked.connect(self.copy_link)
-        layout.addWidget(copy_button)
+        # Placeholder message
+        info_label = QLabel("QR code sharing functionality will be implemented in a future version.")
+        info_label.setAlignment(Qt.AlignCenter)
+        info_label.setWordWrap(True)
+        layout.addWidget(info_label)
         
         # Close button
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.close)
         layout.addWidget(close_button)
-        
-        # Generate and display QR code
-        self.generate_qr_code()
         
         self.setStyleSheet("""
             QDialog {
@@ -56,14 +42,10 @@ class QRShareDialog(QDialog):
             QPushButton:hover {
                 background-color: #357abd;
             }
-            QLineEdit {
-                padding: 8px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                margin: 5px;
-            }
             QLabel {
-                margin: 5px;
+                margin: 15px;
+                font-size: 14px;
+                color: #666;
             }
         """)
     
