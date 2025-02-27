@@ -14,22 +14,37 @@ class MediaVisualizerPanel(QWidget):
         
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
         
-        # Create visualization area
+        # Create visualization area with enhanced styling
         self.visual_label = QLabel()
         self.visual_label.setAlignment(Qt.AlignCenter)
-        self.visual_label.setMinimumSize(400, 200)
+        self.visual_label.setMinimumSize(500, 300)  # Increased size for better visibility
         self.visual_label.setStyleSheet("""
             QLabel {
                 background-color: #1e1e1e;
-                border-radius: 8px;
-                padding: 10px;
+                border-radius: 16px;
+                padding: 20px;
+                border: 1px solid #3a3a3a;
+            }
+            QLabel:hover {
+                background-color: #2d2d2d;
+                border: 2px solid #4a90e2;
             }
         """)
         
         layout.addWidget(self.visual_label)
         layout.addStretch()
+        
+        # Set main widget styling
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                border-radius: 20px;
+                border: 1px solid #2a2a2a;
+            }
+        """)
         
     def update_spectrum(self, audio_data):
         if not audio_data:

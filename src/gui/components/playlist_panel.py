@@ -52,60 +52,87 @@ class PlaylistPanel(QWidget):
         self.refresh_playlists()
         
         self.setStyleSheet("""
-            QWidget { background-color: #f0f0f0; }
+            QWidget { 
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a1a, stop:1 #2d2d2d);
+                border-radius: 24px;
+                padding: 24px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
             QPushButton { 
-                padding: 8px;
-                background-color: #4a90e2;
+                padding: 14px 28px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4a90e2, stop:1 #357abd);
                 color: white;
                 border: none;
-                border-radius: 4px;
-                transition: all 0.2s ease;
+                border-radius: 25px;
+                font-weight: bold;
+                font-size: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             QPushButton:hover {
-                background-color: #357abd;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #357abd, stop:1 #2c5aa0);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
                 transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
             QPushButton:pressed {
-                transform: translateY(0);
-                box-shadow: none;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2c5aa0, stop:1 #1f4677);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                transform: translateY(1px);
             }
             QListWidget {
-                background-color: white;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                padding: 8px;
-                transition: all 0.2s ease;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border: 2px solid rgba(74, 144, 226, 0.1);
+                border-radius: 16px;
+                padding: 16px;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin: 12px 0;
             }
             QListWidget:hover {
                 border-color: #4a90e2;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+                box-shadow: inset 0 2px 4px rgba(74, 144, 226, 0.2);
             }
             QListWidget::item {
-                padding: 8px;
-                border-radius: 4px;
-                margin-bottom: 4px;
+                padding: 14px;
+                border-radius: 12px;
+                margin-bottom: 8px;
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.05);
                 transition: all 0.2s ease;
             }
             QListWidget::item:hover {
-                background-color: #e3f2fd;
-                padding-left: 12px;
+                background: rgba(74, 144, 226, 0.1);
+                padding-left: 24px;
+                color: #4a90e2;
+                border-left: 3px solid #4a90e2;
             }
             QListWidget::item:selected {
-                background-color: #4a90e2;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4a90e2, stop:1 #357abd);
                 color: white;
-                padding-left: 12px;
+                padding-left: 24px;
+                font-weight: bold;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
             QLineEdit {
-                padding: 8px;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                background-color: white;
-                transition: all 0.2s ease;
+                padding: 14px 24px;
+                border: 2px solid rgba(74, 144, 226, 0.1);
+                border-radius: 25px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                color: #ffffff;
+                font-size: 15px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             QLineEdit:focus {
                 border-color: #4a90e2;
-                box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+                box-shadow: 0 0 16px rgba(74, 144, 226, 0.25);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3d3d3d, stop:1 #4d4d4d);
+            }
+            QLabel {
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 500;
+                margin-bottom: 12px;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                letter-spacing: 0.3px;
             }
         """)
     

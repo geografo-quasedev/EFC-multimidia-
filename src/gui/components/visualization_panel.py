@@ -25,8 +25,13 @@ class VisualizationPanel(QWidget):
         self.visualization_label.setStyleSheet("""
             QLabel {
                 background-color: #2c2c2c;
-                border-radius: 4px;
-                padding: 10px;
+                border-radius: 12px;
+                padding: 16px;
+                border: 1px solid #3a3a3a;
+            }
+            QLabel:hover {
+                background-color: #323232;
+                border: 1px solid #4a4a4a;
             }
         """)
         
@@ -43,8 +48,27 @@ class VisualizationPanel(QWidget):
         self.setMinimumWidth(340)
         self.setStyleSheet("""
             QWidget {
-                background-color: #f0f0f0;
-                border-radius: 4px;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                border: 1px solid #3d3d3d;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            }
+            QWidget:hover {
+                background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+                border: 1px solid #4a90e2;
+                box-shadow: 0 12px 24px rgba(74, 144, 226, 0.3);
+            }
+            QLabel {
+                color: #e0e0e0;
+                font-size: 14px;
+                padding: 12px;
+                border-radius: 12px;
+                background: rgba(0,0,0,0.2);
+                margin: 8px;
+            }
+            QLabel:hover {
+                background: rgba(74, 144, 226, 0.1);
+                border: 1px solid #4a90e2;
             }
         """)
     

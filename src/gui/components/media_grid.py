@@ -17,56 +17,149 @@ class MediaGrid(QWidget):
     def setup_ui(self):
         layout = QGridLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(20)  # Increased spacing for better visual separation
+        layout.setSpacing(15)
+        layout.setAlignment(Qt.AlignTop)
         
         self.grid_layout = layout
         self.setStyleSheet("""
             QWidget { 
-                background-color: #f8f9fa;
-                border-radius: 16px;
-                padding: 20px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a1a, stop:1 #2d2d2d);
+                border-radius: 24px;
+                padding: 24px;
             }
             QWidget[class="media-item"] {
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                border-radius: 16px;
-                padding: 20px;
-                box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border-radius: 24px;
+                padding: 24px;
+                border: 2px solid rgba(255,255,255,0.1);
+                margin: 8px;
+                min-width: 320px;
+                max-width: 400px;
             }
             QWidget[class="media-item"]:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3d3d3d, stop:1 #4d4d4d);
+                border: 2px solid #4a90e2;
             }
             QLabel { 
-                padding: 12px;
-                color: #2c3e50;
-                font-size: 14px;
-                line-height: 1.6;
+                padding: 16px;
+                color: #ffffff;
+                font-size: 15px;
+                opacity: 0.95;
+                transition: all 0.2s ease;
+                letter-spacing: 0.3px;
             }
             QLabel[class="title-label"] {
-                font-size: 18px;
+                font-size: 22px;
                 font-weight: bold;
-                color: #1a237e;
-                margin-bottom: 12px;
-                background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
-                -webkit-background-clip: text;
-                color: transparent;
+                color: #4a90e2;
+                margin-bottom: 16px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+                letter-spacing: 0.5px;
             }
             QLabel[class="info-label"] {
-                color: #546e7a;
-                font-size: 14px;
+                color: #b0bec5;
+                font-size: 15px;
                 font-weight: 500;
+                line-height: 1.5;
+                letter-spacing: 0.3px;
+            }
+            QLabel[class="visual-label"] {
+                background: rgba(0,0,0,0.25);
+                border-radius: 16px;
+                padding: 12px;
+                margin-bottom: 20px;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QLabel[class="visual-label"]:hover {
+                transform: scale(1.03);
+                box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
             }
             .metadata-container {
-                padding: 20px;
-                background: rgba(255,255,255,0.95);
-                border-radius: 12px;
-                backdrop-filter: blur(10px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-                border: 1px solid rgba(255,255,255,0.8);
+                padding: 24px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border-radius: 20px;
+                border: 2px solid rgba(255,255,255,0.1);
+                margin-top: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .metadata-container:hover {
+                border-color: #4a90e2;
+                box-shadow: 0 6px 12px rgba(74, 144, 226, 0.25);
+                transform: translateY(-4px);
             }
         """)
-        
+        self.grid_layout = layout
+        self.setStyleSheet("""
+            QWidget { 
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a1a, stop:1 #2d2d2d);
+                border-radius: 24px;
+                padding: 24px;
+            }
+            QWidget[class="media-item"] {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border-radius: 24px;
+                padding: 24px;
+                border: 2px solid rgba(255,255,255,0.1);
+                margin: 8px;
+                min-width: 320px;
+                max-width: 400px;
+            }
+            QWidget[class="media-item"]:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3d3d3d, stop:1 #4d4d4d);
+                border: 2px solid #4a90e2;
+            }
+            QLabel { 
+                padding: 16px;
+                color: #ffffff;
+                font-size: 15px;
+                opacity: 0.95;
+                transition: all 0.2s ease;
+                letter-spacing: 0.3px;
+            }
+            QLabel[class="title-label"] {
+                font-size: 22px;
+                font-weight: bold;
+                color: #4a90e2;
+                margin-bottom: 16px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+                letter-spacing: 0.5px;
+            }
+            QLabel[class="info-label"] {
+                color: #b0bec5;
+                font-size: 15px;
+                font-weight: 500;
+                line-height: 1.5;
+                letter-spacing: 0.3px;
+            }
+            QLabel[class="visual-label"] {
+                background: rgba(0,0,0,0.25);
+                border-radius: 16px;
+                padding: 12px;
+                margin-bottom: 20px;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QLabel[class="visual-label"]:hover {
+                transform: scale(1.03);
+                box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
+            }
+            .metadata-container {
+                padding: 24px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border-radius: 20px;
+                border: 2px solid rgba(255,255,255,0.1);
+                margin-top: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .metadata-container:hover {
+                border-color: #4a90e2;
+                box-shadow: 0 6px 12px rgba(74, 144, 226, 0.25);
+                transform: translateY(-4px);
+            }
+        """)
     def add_media_item(self, file_path):
         item_widget = QWidget()
         item_widget.setProperty("class", "media-item")

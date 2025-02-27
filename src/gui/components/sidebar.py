@@ -5,6 +5,8 @@ from PyQt5.QtGui import QIcon
 from .playlist_panel import PlaylistPanel
 from ...database import get_db
 from ...database.models import Media
+from PyQt5.QtCore import QTimer, QTime
+from datetime import datetime
 
 class Sidebar(QWidget):
     file_selected = pyqtSignal(str)
@@ -14,12 +16,93 @@ class Sidebar(QWidget):
         self.recent_media = []
         self.favorite_media = []
         self.db = next(get_db())
+        # Initialize time_label before setup_ui
+        self.time_label = QLabel()
+        self.time_label.setAlignment(Qt.AlignCenter)
+        self.time_label.setStyleSheet("""
+            QLabel {
+                color: #ffffff;
+                font-size: 24px;
+                font-weight: bold;
+                padding: 10px;
+                background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+                border-radius: 12px;
+                margin-bottom: 20px;
+            }
+        """)
+        
+        # Setup timer for updating clock
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time)
+        self.timer.start(1000)  # Update every second
+        self.update_time()  # Initial update
+        
         self.setup_ui()
-        self.load_favorites()
-        self.load_recent_media()
     
+    def update_time(self):
+        current_time = datetime.now().strftime("%H:%M:%S")
+        self.time_label.setText(current_time)
+
+    def update_clock(self):
+        current_time = QTime.currentTime()
+        time_text = current_time.toString('HH:mm')
+        self.time_label.setText(time_text)
+
     def setup_ui(self):
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        
+        # Add clock at the top
+        layout.addWidget(self.time_label)
+        
+        # Library items with icons
+        library_items = [
+            ("Browse", "🎵"),
+            ("History", "⏱"),
+            ("Setup", "⚙"),
+            ("Clan Gaming", "🎮"),
+            ("Remix", "🎚"),
+            ("Saved", "💾"),
+            ("Settings", "⚙"),
+            ("Social", "👥"),
+            ("Source", "📁"),
+            ("Playlists", "📑"),
+            ("Collections", "📚")
+        ]
+        
+        for text, icon in library_items:
+            btn = QPushButton(f"{icon} {text}")
+            btn.setStyleSheet("""
+                QPushButton {
+                    text-align: left;
+                    padding: 12px 20px;
+                    color: #808080;
+                    background: transparent;
+                    border: none;
+                    font-size: 14px;
+                }
+                QPushButton:hover {
+                    color: #ffffff;
+                    background-color: #2d2d2d;
+                }
+                QPushButton:checked {
+                    color: #ffffff;
+                    background-color: #3d3d3d;
+                }
+            """)
+            layout.addWidget(btn)
+
+        layout.addStretch()
+        
+        self.setStyleSheet("""
+            QWidget { 
+                background-color: #1e1e1e;
+                border: none;
+            }
+        """)
+        
+        self.setFixedWidth(250)
         layout.setContentsMargins(20, 20, 20, 20)  # Increased padding for better spacing
         layout.setSpacing(12)  # Consistent spacing between elements
         
@@ -92,57 +175,70 @@ class Sidebar(QWidget):
         self.setMaximumWidth(300)  # Slightly wider for better content display
         self.setStyleSheet("""
             QWidget { 
-                background-color: #ffffff;
-                border-right: 2px solid #e3e3e3;
+                background-color: #1a1a1a;
+                border: none;
+                border-radius: 20px;
             }
             QPushButton { 
-                padding: 12px;
-                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-                color: white;
+                text-align: left;
+                padding: 14px 24px;
+                background: transparent;
+                color: #808080;
                 border: none;
-                border-radius: 16px;
-                font-weight: bold;
-                font-size: 14px;
+                border-radius: 12px;
+                font-size: 15px;
+                margin: 4px 0;
+                transition: all 0.3s ease;
             }
             QPushButton:hover {
-                background: linear-gradient(135deg, #357abd 0%, #2c5aa0 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+                color: #ffffff;
+                background-color: rgba(74, 144, 226, 0.1);
+                padding-left: 28px;
             }
-            QPushButton:pressed {
-                background: linear-gradient(135deg, #2c5aa0 0%, #1a4884 100%);
-                transform: translateY(0);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            QPushButton:checked {
+                color: #ffffff;
+                background: linear-gradient(135deg, rgba(74, 144, 226, 0.2) 0%, rgba(53, 122, 189, 0.2) 100%);
+                border-left: 3px solid #4a90e2;
             }
             QListWidget {
-                background-color: white;
-                border: 1px solid #e3e3e3;
+                background-color: #2d2d2d;
+                border: 1px solid #3d3d3d;
                 border-radius: 16px;
                 padding: 12px;
                 margin: 8px 0;
+                color: #ffffff;
             }
             QListWidget:hover {
-                border-color: #4a90e2;
-                box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+                border: 2px solid #4a90e2;
+                background-color: #353535;
             }
             QListWidget::item {
                 padding: 14px;
                 border-radius: 12px;
-                margin-bottom: 8px;
-                background-color: #f8f9fa;
+                margin: 4px 0;
+                background-color: rgba(255, 255, 255, 0.05);
                 border-left: 3px solid transparent;
             }
             QListWidget::item:hover {
-                background-color: #e3f2fd;
+                background-color: rgba(74, 144, 226, 0.1);
                 padding-left: 20px;
-                color: #1a237e;
                 border-left: 3px solid #4a90e2;
             }
             QListWidget::item:selected {
-                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-                color: white;
+                background: linear-gradient(135deg, rgba(74, 144, 226, 0.2) 0%, rgba(53, 122, 189, 0.2) 100%);
+                color: #ffffff;
                 padding-left: 20px;
                 font-weight: bold;
+                border-left: 3px solid #4a90e2;
+            }
+            QLabel {
+                color: #4a90e2;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 16px;
+                margin: 8px 0;
+                background: rgba(74, 144, 226, 0.1);
+                border-radius: 12px;
             }
         """)
 

@@ -20,67 +20,20 @@ class StatsPanel(QWidget):
         
         # Title with improved styling
         title_label = QLabel("Media Statistics")
-        title_label.setStyleSheet("font-weight: bold; font-size: 16px; color: #2c3e50; margin-bottom: 12px;")
+        title_label.setStyleSheet("font-weight: bold; font-size: 16px; color: #4a90e2; margin-bottom: 12px;")
         layout.addWidget(title_label)
         
-        # Stats container with enhanced styling
+        # Stats container
         self.stats_container = QFrame()
         self.stats_container.setFrameShape(QFrame.StyledPanel)
-        self.stats_container.setStyleSheet("""
-            QWidget { 
-                background-color: #f8f9fa;
-                border-radius: 16px;
-                padding: 20px;
-            }
-            QFrame {
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                border: 1px solid #e9ecef;
-                border-radius: 16px;
-                padding: 20px;
-                margin: 12px 0;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            QFrame:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            }
-            QLabel {
-                color: #2c3e50;
-                font-size: 14px;
-                font-weight: 500;
-                margin: 6px 0;
-                transition: color 0.2s ease;
-            }
-            QLabel[class="section-title"] {
-                font-size: 18px;
-                font-weight: bold;
-                color: #1a237e;
-                margin: 16px 0 12px 0;
-                background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
-                -webkit-background-clip: text;
-                color: transparent;
-            }
-            QPushButton.star-button {
-                color: #ffd700;
-                font-size: 20px;
-                border: none;
-                padding: 8px;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            QPushButton.star-button:hover {
-                color: #ffa500;
-                transform: scale(1.2) rotate(72deg);
-            }
-        """)
         stats_layout = QVBoxLayout(self.stats_container)
         
-        # Play statistics section with icons
+        # Play statistics section
         play_stats_label = QLabel("🎵 Play Statistics")
         play_stats_label.setProperty("class", "section-title")
         stats_layout.addWidget(play_stats_label)
         
-        # Enhanced play count display
+        # Play count
         play_count_layout = QHBoxLayout()
         play_count_label = QLabel("▶ Plays:")
         self.play_count_value = QLabel("0")
@@ -89,7 +42,7 @@ class StatsPanel(QWidget):
         play_count_layout.addStretch()
         stats_layout.addLayout(play_count_layout)
         
-        # Last played with improved formatting
+        # Last played
         last_played_layout = QHBoxLayout()
         last_played_label = QLabel("🕒 Last played:")
         self.last_played_value = QLabel("Never")
@@ -98,12 +51,21 @@ class StatsPanel(QWidget):
         last_played_layout.addStretch()
         stats_layout.addLayout(last_played_layout)
         
-        # Rating section with interactive stars
+        # Total play time
+        total_time_layout = QHBoxLayout()
+        total_time_label = QLabel("⏱ Total play time:")
+        self.total_time_value = QLabel("0:00:00")
+        total_time_layout.addWidget(total_time_label)
+        total_time_layout.addWidget(self.total_time_value)
+        total_time_layout.addStretch()
+        stats_layout.addLayout(total_time_layout)
+        
+        # Rating section
         rating_section_label = QLabel("⭐ Rating & Favorites")
         rating_section_label.setProperty("class", "section-title")
         stats_layout.addWidget(rating_section_label)
         
-        # Star rating with improved interaction
+        # Star rating
         rating_layout = QHBoxLayout()
         rating_label = QLabel("Rating:")
         self.rating_buttons = []
@@ -120,128 +82,11 @@ class StatsPanel(QWidget):
         rating_layout.addStretch()
         stats_layout.addLayout(rating_layout)
         
-        layout.addWidget(self.stats_container)
-        layout.addStretch()
-        
-        # Total play time
-        total_time_layout = QHBoxLayout()
-        total_time_label = QLabel("⏱ Total play time:")
-        self.total_time_value = QLabel("0:00:00")
-        total_time_layout.addWidget(total_time_label)
-        total_time_layout.addWidget(self.total_time_value)
-        total_time_layout.addStretch()
-        stats_layout.addLayout(total_time_layout)
-        
-        # Rating section
-        rating_section_label = QLabel("Rating & Favorites")
-        rating_section_label.setFont(QFont("Arial", 10, QFont.Bold))
-        stats_layout.addWidget(rating_section_label)
-        
-        # Rating with stars
-        rating_layout = QHBoxLayout()
-        rating_label = QLabel("⭐ Rating:")
-        self.rating_buttons = []
-        rating_stars = QHBoxLayout()
-        for i in range(5):
-            star_button = QPushButton("☆")
-            star_button.setFlat(True)
-            star_button.setStyleSheet("""
-                QPushButton {
-                    color: #FFD700;
-                    font-size: 16px;
-                    border: none;
-                    padding: 0;
-                    min-width: 20px;
-                }
-                QPushButton:hover {
-                    color: #FFA500;
-                }
-            """)
-            star_button.clicked.connect(lambda checked, index=i: self.set_rating(index + 1))
-            self.rating_buttons.append(star_button)
-            rating_stars.addWidget(star_button)
-        rating_layout.addWidget(rating_label)
-        rating_layout.addLayout(rating_stars)
-        rating_layout.addStretch()
-        stats_layout.addLayout(rating_layout)
-        
-        # Add average rating display
-        avg_rating_layout = QHBoxLayout()
-        avg_rating_label = QLabel("📊 Average Rating:")
-        self.avg_rating_value = QLabel("0.0")
-        avg_rating_layout.addWidget(avg_rating_label)
-        avg_rating_layout.addWidget(self.avg_rating_value)
-        avg_rating_layout.addStretch()
-        stats_layout.addLayout(avg_rating_layout)
-        
-        # Add favorite toggle button
-        favorite_layout = QHBoxLayout()
-        favorite_label = QLabel("❤️ Favorite:")
-        self.favorite_button = QPushButton()
-        self.favorite_button.setCheckable(True)
-        self.favorite_button.setStyleSheet("""
-            QPushButton {
-                border: none;
-                padding: 5px;
-                font-size: 16px;
-            }
-            QPushButton:checked {
-                color: red;
-            }
-        """)
-        self.favorite_button.clicked.connect(self.toggle_favorite)
-        favorite_layout.addWidget(favorite_label)
-        favorite_layout.addWidget(self.favorite_button)
-        favorite_layout.addStretch()
-        stats_layout.addLayout(favorite_layout)
-        
-        # Add session statistics
-        session_label = QLabel("Session Statistics")
-        session_label.setFont(QFont("Arial", 10, QFont.Bold))
-        stats_layout.addWidget(session_label)
-        
-        # Session play count
-        session_plays_layout = QHBoxLayout()
-        session_plays_label = QLabel("🎵 Session plays:")
-        self.session_plays_value = QLabel("0")
-        session_plays_layout.addWidget(session_plays_label)
-        session_plays_layout.addWidget(self.session_plays_value)
-        session_plays_layout.addStretch()
-        stats_layout.addLayout(session_plays_layout)
-        
-        # Session time
-        session_time_layout = QHBoxLayout()
-        session_time_label = QLabel("⌛ Session time:")
-        self.session_time_value = QLabel("0:00:00")
-        session_time_layout.addWidget(session_time_label)
-        session_time_layout.addWidget(self.session_time_value)
-        session_time_layout.addStretch()
-        stats_layout.addLayout(session_time_layout)
-        
-        layout.addWidget(self.stats_container)
-        layout.addStretch()
-        
-        # Initialize session stats
-        self.session_play_count = 0
-        self.session_start_time = datetime.now()
-        
-        # Favorite button with improved styling
+        # Favorite button
         favorite_layout = QHBoxLayout()
         self.favorite_button = QPushButton("♡ Add to Favorites")
         self.favorite_button.setCheckable(True)
         self.favorite_button.clicked.connect(self.toggle_favorite)
-        self.favorite_button.setStyleSheet("""
-            QPushButton {
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-weight: bold;
-                background-color: #f0f0f0;
-            }
-            QPushButton:checked {
-                background-color: #e74c3c;
-                color: white;
-            }
-        """)
         favorite_layout.addWidget(self.favorite_button)
         stats_layout.addLayout(favorite_layout)
         
@@ -319,26 +164,42 @@ class StatsPanel(QWidget):
         for button in self.rating_buttons:
             button.setEnabled(enabled)
         
-        # Most played section with improved styling
+        # Most played section with modern dark theme styling
         most_played_frame = QFrame()
         most_played_frame.setFrameShape(QFrame.StyledPanel)
         most_played_frame.setStyleSheet("""
             QFrame {
-                background-color: white;
-                border-radius: 8px;
-                padding: 10px;
-                margin-top: 10px;
+                background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+                border-radius: 16px;
+                padding: 20px;
+                margin-top: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
         """)
         most_played_layout = QVBoxLayout(most_played_frame)
+        most_played_layout.setSpacing(12)
         
         most_played_label = QLabel("📈 Most Played Tracks")
-        most_played_label.setFont(QFont("Arial", 10, QFont.Bold))
+        most_played_label.setFont(QFont("Arial", 12, QFont.Bold))
+        most_played_label.setStyleSheet("""
+            color: #4a90e2;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(74, 144, 226, 0.3);
+            margin-bottom: 10px;
+        """)
         most_played_layout.addWidget(most_played_label)
         
         self.most_played_list = QLabel()
         self.most_played_list.setWordWrap(True)
-        self.most_played_list.setStyleSheet("color: #666;")
+        self.most_played_list.setStyleSheet("""
+            color: #e0e0e0;
+            font-size: 11px;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+        """)
         most_played_layout.addWidget(self.most_played_list)
         
         self.layout().addWidget(most_played_frame)

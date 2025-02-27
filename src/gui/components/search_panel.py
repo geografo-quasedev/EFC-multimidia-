@@ -30,26 +30,85 @@ class SearchPanel(QWidget):
         search_layout.addWidget(self.filter_combo)
         
         layout.addLayout(search_layout)
-        
-        # Style
         self.setStyleSheet("""
+            QWidget {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a1a, stop:1 #2d2d2d);
+                border-radius: 24px;
+                padding: 20px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
             QLineEdit {
-                padding: 5px;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                background-color: white;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border: 2px solid rgba(74, 144, 226, 0.1);
+                border-radius: 25px;
+                padding: 14px 24px;
+                color: #ffffff;
+                font-size: 15px;
+                min-width: 320px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QLineEdit:focus {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3d3d3d, stop:1 #4d4d4d);
+                border-color: #4a90e2;
+                box-shadow: 0 0 16px rgba(74, 144, 226, 0.25);
+                transform: translateY(-1px);
             }
             QComboBox {
-                padding: 5px;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                background-color: white;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #2d2d2d, stop:1 #3d3d3d);
+                border: 2px solid rgba(74, 144, 226, 0.1);
+                border-radius: 25px;
+                padding: 14px 24px;
+                color: #ffffff;
+                min-width: 200px;
+                font-weight: 500;
+                selection-background-color: #4a90e2;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            QComboBox:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3d3d3d, stop:1 #4d4d4d);
+                border-color: #4a90e2;
+                box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+                transform: translateY(-2px);
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 32px;
+                border-left: 2px solid rgba(255, 255, 255, 0.1);
+                padding-left: 12px;
+                transition: all 0.2s ease;
+            }
+            QComboBox::down-arrow {
+                image: url(resources/icons/arrow-down.png);
+                width: 18px;
+                height: 18px;
+                margin-right: 12px;
+                transition: transform 0.2s ease;
+            }
+            QComboBox QAbstractItemView {
+                background: #2d2d2d;
+                border: 2px solid #4a90e2;
+                selection-background-color: #4a90e2;
+                selection-color: white;
+                border-radius: 16px;
+                padding: 12px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             }
             QLabel {
-                color: #495057;
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 500;
+                margin-right: 16px;
+                opacity: 0.9;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+                letter-spacing: 0.3px;
+            }
+            QLabel:hover {
+                opacity: 1;
+                transform: translateX(2px);
             }
         """)
-        
+
     def _on_search_change(self):
         search_text = self.search_input.text()
         filter_type = self.filter_combo.currentText().lower()

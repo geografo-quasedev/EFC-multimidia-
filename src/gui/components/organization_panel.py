@@ -49,27 +49,71 @@ class OrganizationPanel(QWidget):
         layout.addWidget(self.category_list)
         
         self.setStyleSheet("""
-            QWidget { background-color: #f0f0f0; }
+            QWidget { 
+                background-color: #1a1a1a;
+                color: #ffffff;
+            }
+            QLabel {
+                color: #4a90e2;
+                font-size: 18px;
+                font-weight: bold;
+                margin: 16px 0;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
             QPushButton { 
-                padding: 8px;
-                background-color: #4a90e2;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 20px;
+                padding: 12px 24px;
+                font-weight: bold;
+                font-size: 14px;
+                margin: 8px 0;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
             QPushButton:hover {
-                background-color: #357abd;
+                background: linear-gradient(135deg, #357abd 0%, #2c5aa0 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(74, 144, 226, 0.3);
+            }
+            QPushButton:pressed {
+                transform: translateY(1px);
+                box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
             }
             QLineEdit {
-                padding: 5px;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-                background-color: white;
+                background-color: #2d2d2d;
+                color: #ffffff;
+                padding: 12px;
+                border: 1px solid #3d3d3d;
+                border-radius: 15px;
+                margin: 8px 0;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            }
+            QLineEdit:focus {
+                border: 2px solid #4a90e2;
+                background-color: #353535;
             }
             QListWidget {
-                background-color: white;
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
+                background-color: #2d2d2d;
+                border: 1px solid #3d3d3d;
+                border-radius: 15px;
+                padding: 10px;
+                margin: 8px 0;
+                color: #ffffff;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 8px;
+                margin: 2px 0;
+            }
+            QListWidget::item:hover {
+                background-color: #353535;
+            }
+            QListWidget::item:selected {
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                color: white;
             }
         """)
         

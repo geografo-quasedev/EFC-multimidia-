@@ -333,62 +333,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -530,62 +598,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -727,62 +863,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -924,62 +1128,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -1121,62 +1393,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -1318,62 +1658,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -1515,62 +1923,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""
@@ -1712,62 +2188,130 @@ class MainWindow(QMainWindow):
         self.player_controls.enable_controls(False)
     
     def setup_ui(self):
-        # Create central widget and main layout
+        # Create central widget with dark theme
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        central_widget.setStyleSheet("""
+            QWidget {
+                background-color: #121212;
+                color: #ffffff;
+            }
+        """)
         
-        # Create sidebar
+        # Create main layout with proper spacing
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create sidebar with fixed width
         self.sidebar = Sidebar()
         main_layout.addWidget(self.sidebar)
         
-        # Create content area
+        # Create content area with gradient background
         content_widget = QWidget()
+        content_widget.setStyleSheet("""
+            QWidget {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                margin: 10px;
+            }
+        """)
         content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(15)
         
-        # Add search panel
+        # Add search panel with modern styling
         self.search_panel = SearchPanel()
         content_layout.addWidget(self.search_panel)
         
-        # Create media display area
+        # Create media display area with proper organization
         display_widget = QWidget()
+        display_widget.setStyleSheet("""
+            QWidget {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+            }
+        """)
         display_layout = QHBoxLayout(display_widget)
+        display_layout.setContentsMargins(15, 15, 15, 15)
+        display_layout.setSpacing(20)
         
-        # Add media grid
+        # Add media grid with enhanced visuals
         self.media_grid = MediaGrid()
-        display_layout.addWidget(self.media_grid)
+        display_layout.addWidget(self.media_grid, 2)
         
-        # Add video widget and visualization panel
+        # Add video widget and visualization in a container
         media_view = QWidget()
+        media_view.setStyleSheet("""
+            QWidget {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+            }
+        """)
         media_view_layout = QVBoxLayout(media_view)
+        media_view_layout.setContentsMargins(10, 10, 10, 10)
+        media_view_layout.setSpacing(10)
+        
+        # Configure video widget
+        self.video_widget.setMinimumSize(320, 180)
+        self.video_widget.setStyleSheet("""
+            QVideoWidget {
+                background: black;
+                border-radius: 8px;
+            }
+        """)
         media_view_layout.addWidget(self.video_widget)
         
+        # Add visualization panel
         self.visualization_panel = VisualizationPanel()
         media_view_layout.addWidget(self.visualization_panel)
-        display_layout.addWidget(media_view)
+        display_layout.addWidget(media_view, 1)
         
         content_layout.addWidget(display_widget)
         
-        # Add player controls
+        # Add player controls with modern design
         self.player_controls = PlayerControls(self.media_player)
         content_layout.addWidget(self.player_controls)
         
-        # Add now playing panel
+        # Add now playing panel with enhanced styling
         self.now_playing_panel = NowPlayingPanel()
         content_layout.addWidget(self.now_playing_panel)
         
-        main_layout.addWidget(content_widget)
+        main_layout.addWidget(content_widget, 2)
         
-        # Add organization panel with database connection
+        # Add right sidebar with organization and stats
+        right_sidebar = QWidget()
+        right_sidebar.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                border-radius: 20px;
+                margin: 10px 10px 10px 0;
+            }
+        """)
+        right_layout = QVBoxLayout(right_sidebar)
+        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setSpacing(15)
+        
+        # Add organization panel
         self.organization_panel = OrganizationPanel(self.db)
-        main_layout.addWidget(self.organization_panel)
+        right_layout.addWidget(self.organization_panel)
         
         # Add statistics panel
         self.stats_panel = StatsPanel()
-        main_layout.addWidget(self.stats_panel)
+        right_layout.addWidget(self.stats_panel)
         
-        # Setup connections
-        self.setup_connections()
+        main_layout.addWidget(right_sidebar)
+        
+        # Set window properties
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Media Library Manager")
+        
+        # Apply global stylesheet
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #121212;
+            }
+        """)
         
     def setup_connections(self):
         """Setup signal/slot connections between components"""

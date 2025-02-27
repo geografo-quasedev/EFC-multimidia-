@@ -79,55 +79,59 @@ class PlayerControls(QWidget):
         
         self.setStyleSheet("""
             QWidget {
-                background-color: #f8f9fa;
-                border-radius: 12px;
-                padding: 15px;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border-radius: 20px;
+                padding: 25px;
             }
             QPushButton { 
-                padding: 12px 24px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4a90e2, stop:1 #357abd);
+                padding: 16px 32px;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
                 color: white;
                 border: none;
-                border-radius: 25px;
+                border-radius: 30px;
                 font-weight: bold;
-                font-size: 14px;
-                min-width: 120px;
-                transition: all 0.3s ease;
+                font-size: 16px;
+                min-width: 140px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.15);
             }
             QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #357abd, stop:1 #2c5aa0);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                background: linear-gradient(135deg, #357abd 0%, #2c5aa0 100%);
+                transform: translateY(-3px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.2);
             }
             QPushButton:pressed {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2c5aa0, stop:1 #1a4884);
-                transform: translateY(0);
-                box-shadow: none;
+                transform: translateY(1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
             QSlider::groove:horizontal {
                 border: none;
-                height: 6px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #e0e0e0, stop:1 #f0f0f0);
-                border-radius: 3px;
+                height: 10px;
+                background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+                border-radius: 5px;
+                margin: 2px 0;
             }
             QSlider::handle:horizontal {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4a90e2, stop:1 #357abd);
-                border: none;
-                width: 18px;
-                height: 18px;
-                margin: -6px 0;
-                border-radius: 9px;
-                transition: all 0.2s ease;
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                border: 2px solid #ffffff;
+                width: 22px;
+                height: 22px;
+                margin: -7px 0;
+                border-radius: 11px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             }
             QSlider::handle:horizontal:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #357abd, stop:1 #2c5aa0);
+                background: linear-gradient(135deg, #357abd 0%, #2c5aa0 100%);
                 transform: scale(1.2);
+                box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
             }
             QLabel {
-                color: #2c3e50;
-                font-size: 14px;
-                font-weight: 500;
-                margin: 0 8px;
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 600;
+                margin: 0 10px;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
             }
         """)
         
